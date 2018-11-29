@@ -1,7 +1,7 @@
 # ConFInR
 
 ## Description
-ConFInR tool for metagenomics function annotation.
+ConFInR is a Python tool for functional annotation of metagenomics sequences.
 
 ## Table Of Contents
 * [Description](https://github.com/kjradem/ConFInR/blob/master/README.md#description)
