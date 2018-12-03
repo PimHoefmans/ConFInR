@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import click
 
 
 # METAGEN-171
@@ -37,7 +38,7 @@ def convert_to_fasta(df: pd.DataFrame, output_path: str):
             content = ''
             with open(output_path, 'w') as f:
                 for index, row in df.iterrows():
-                    content += '>' + index + ' /1\n' + row['dfw_seq'] + '\n' +\
+                    content += '>' + index + ' /1\n' + row['fw_seq'] + '\n' +\
                                '>' + index + ' /2\n' + row['rvc_seq'] + '\n'
                 f.write(content)
         except KeyError:
@@ -46,4 +47,3 @@ def convert_to_fasta(df: pd.DataFrame, output_path: str):
             raise ValueError
     else:
         raise FileExistsError
-    
