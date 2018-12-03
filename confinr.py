@@ -1,10 +1,8 @@
 from datetime import datetime
 import pandas as pd
 import os
-import click
 
 
-# METAGEN-171
 def load_input(input_path: str):
     """Load data from tab-separated input file, convert to DataFrame and return only columns with sequences.
     :param input_path: Path to the input file, type must be str.
@@ -23,7 +21,6 @@ def load_input(input_path: str):
         raise ValueError
 
 
-# METAGEN-172
 def convert_to_fasta(df: pd.DataFrame, output_path: str):
     """Convert sequences and headers in DataFrame to FASTA-format.
     Include postfixes '/1' for forward- and '/2' for reverse complement sequences in FASTA header.
@@ -50,11 +47,20 @@ def convert_to_fasta(df: pd.DataFrame, output_path: str):
         raise FileExistsError
 
 
-# METAGEN-167
-def preprocessing():
-    return ''
+def preprocessing(input_path, output_path):
+    convert_to_fasta(load_input(input_path), output_path)
 
 
-# FOLDER INITIALIZATION
-def initialize():
-    return ''
+def initialize_run():
+    default_folders = ['output', 'annotation']
+    t = datetime.now()
+    run_id = ' '.join(['run', '-'.join([str(t.day), str(t.month), str(t.year)]),
+                       '-'.join([str(t.hour), str(t.minute), str(t.second)])])
+    try:
+        if not os.path.exists(run_id):
+            os.makedirs(run_id)
+            os.chdir(run_id)
+            for folder in default_folders:
+                os.makedirs(folder)
+    except OSError:
+        raise OSError
