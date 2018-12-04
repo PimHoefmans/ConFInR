@@ -1,2 +1,3 @@
 venv/*
 *.pyc
+ConFInR.egg-info/*
