@@ -40,8 +40,10 @@ def convert_to_fasta(df: pd.DataFrame, output_path: str):
             content = ''
             with open(output_path, 'w') as f:
                 for index, row in df.iterrows():
-                    content += '>' + index + ' /1\n' + row['fw_seq'] + '\n' +\
-                               '>' + index + ' /2\n' + row['rvc_seq'] + '\n'
+                    if isinstance(row['fw_seq'], str):
+                        content += '>' + index + ' /1\n' + row['fw_seq'] + '\n'
+                    if isinstance(row['rvc_seq'], str):
+                        content += '>' + index + ' /2\n' + row['rvc_seq'] + '\n'
                 f.write(content)
         except KeyError:
             raise KeyError
@@ -52,8 +54,8 @@ def convert_to_fasta(df: pd.DataFrame, output_path: str):
 
 
 @click.command()
-@click.option('--input', help='Path to input file.')
-@click.option('--output', help='Path for output file')
+@click.option('--i', help='Path to input file.')
+@click.option('--o', help='Path for output file')
 def preprocessing(i: str, o: str):
     """Call pre-processing function(s) to generate data for ConFInR.
     Call convert_to_fasta to extract sequences in TSV file and convert to FASTA file.
@@ -64,6 +66,10 @@ def preprocessing(i: str, o: str):
 
 
 def initialize_run():
+    """Initialize a ConFInR run by creating the required folder structure.
+    Run folder name contains the date and time of the run.
+    :raises OSError: If there is no such file or directory.
+    """
     t = datetime.now()
     run_id = ' '.join(['run', '-'.join([str(t.day), str(t.month), str(t.year)]),
                        '-'.join([str(t.hour), str(t.minute), str(t.second)])])
@@ -81,10 +87,10 @@ def initialize_run():
 @click.option('--db', help='Path to DIAMOND database.')
 @click.option('--i', help='Path to input file.')
 @click.option('--makedb', help='Path to create DIAMOND database.')
-def run(db, i, makedb):
-    if(makedb):
-        print('Make a DB')
-        # function(makedb, db)
-    # initialize_run()
-    # function(db, i) > runs DIAMOND, stores output
-    # function() > saves metadata
+def todo(db, i, makedb):
+    # TODO: Check for makedb.
+        # TODO: Call function to create DIAMOND database.
+    # TODO: Call function to initialize ConFInR run.
+    # TODO: Call function to run DIAMOND.
+    # TODO: Call function to store run metadata.
+    return None
