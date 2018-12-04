@@ -1,6 +1,10 @@
 from datetime import datetime
 import pandas as pd
 import os
+import click
+
+
+DEFAULT_INIT_FOLDERS = ['INPUT', 'OUTPUT', 'ANNOTATION']
 
 
 def load_input(input_path: str):
@@ -47,12 +51,19 @@ def convert_to_fasta(df: pd.DataFrame, output_path: str):
         raise FileExistsError
 
 
-def preprocessing(input_path, output_path):
-    convert_to_fasta(load_input(input_path), output_path)
+@click.command()
+@click.option('--input', help='Path to input file.')
+@click.option('--output', help='Path for output file')
+def preprocessing(i: str, o: str):
+    """Call pre-processing function(s) to generate data for ConFInR.
+    Call convert_to_fasta to extract sequences in TSV file and convert to FASTA file.
+    :param i: Path to input file, type must be str.
+    :param o: Path for output file, type must be str.
+    """
+    convert_to_fasta(load_input(i), o)
 
 
 def initialize_run():
-    default_folders = ['output', 'annotation']
     t = datetime.now()
     run_id = ' '.join(['run', '-'.join([str(t.day), str(t.month), str(t.year)]),
                        '-'.join([str(t.hour), str(t.minute), str(t.second)])])
@@ -60,7 +71,20 @@ def initialize_run():
         if not os.path.exists(run_id):
             os.makedirs(run_id)
             os.chdir(run_id)
-            for folder in default_folders:
+            for folder in DEFAULT_INIT_FOLDERS:
                 os.makedirs(folder)
     except OSError:
         raise OSError
+
+
+@click.command()
+@click.option('--db', help='Path to DIAMOND database.')
+@click.option('--i', help='Path to input file.')
+@click.option('--makedb', help='Path to create DIAMOND database.')
+def run(db, i, makedb):
+    if(makedb):
+        print('Make a DB')
+        # function(makedb, db)
+    # initialize_run()
+    # function(db, i) > runs DIAMOND, stores output
+    # function() > saves metadata
