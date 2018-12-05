@@ -15,6 +15,9 @@ ConFInR is a Python tool for functional annotation of metagenomics sequences.
 
 ## Usage
 
+### Folder structure
+ConFInR's folder structure is shown below, including an example run folder. Run folders are automatically created when running ConFInR to store results and metadata and are named '_RUN [date] [time]_'.
+``` INSERT FOLDER TREE HERE ```
 ## Credits
 
 ## License
