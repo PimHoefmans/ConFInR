@@ -86,7 +86,7 @@ def initialize_run():
         raise OSError
 
 
-def write_metadata(q=None, d=None):
+def write_metadata(q=None, d=None, run_id=None):
     """Write metadata file for ConFInR run to list input files and parameters.
     :param q: Path to query file.
     :param d: Path to DIAMOND database.
@@ -97,6 +97,10 @@ def write_metadata(q=None, d=None):
             if q:
                 f.write('Query file: ' + q + '\n')
             if d:
+                if not os.path.exists(d):
+                    os.chdir('..')
+                    d = os.getcwd() + '/REFERENCE/' + d.split('/')[-1]
+                    os.chdir(run_id)
                 f.write('DIAMOND database ' + d + '\n')
     # TODO: Add BLAST mode
     # TODO: Add optional parameters
@@ -127,6 +131,10 @@ def run_diamond(d: str, q: str, run_id: str):
     :param run_id: Run folder name, type must be str.
     """
     o = './OUTPUT/matches.m8'
+    ## INSIDE RUN
+    ## GO BACK TO CONFINR
+    ## GO TO REFERENCE
+    ## GO BACK TO RUN ID
     if not os.path.exists(d):
         os.chdir('..')
         d = os.getcwd() + '/REFERENCE/' + d
@@ -146,6 +154,7 @@ def run_confinr(d: str, q: str):
     run_id = initialize_run()
     run_diamond(d, q, run_id)
     write_metadata(q=os.path.realpath(q))
+    write_metadata(d=os.path.realpath(d), run_id=run_id)
     # TODO: Correctly handle d file path: write_metadata(d=os.path.realpath(d))
     # TODO: Add option to generically pass further arguments.
     # TODO: EXCEPTION d and q must be passed
