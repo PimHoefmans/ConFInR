@@ -101,7 +101,6 @@ def write_metadata(q=None, d=None):
 
 
 @click.command()
-@click.argument('ref', envvar='REFERENCE')
 @click.option('--i', help='Path to the input protein reference database file.')
 @click.option('--d', help='Path to the output DIAMOND database file.')
 def make_diamond_db(i: str, d: str):
