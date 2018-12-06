@@ -1,10 +1,11 @@
+from subprocess import call
 from datetime import datetime
 import pandas as pd
 import os
 import click
 
-
-DEFAULT_INIT_FOLDERS = ['INPUT', 'OUTPUT', 'ANNOTATION']
+DEFAULT_INIT_FOLDERS = ['OUTPUT', 'ANNOTATION']
+METADATA_FILE_PATH = 'metadata.txt'
 
 
 def load_input(input_path: str):
@@ -56,7 +57,7 @@ def convert_to_fasta(df: pd.DataFrame, output_path: str):
 @click.command()
 @click.option('--i', help='Path to input file.')
 @click.option('--o', help='Path for output file')
-def preprocessing(i: str, o: str):
+def preprocess(i: str, o: str):
     """Call pre-processing function(s) to generate data for ConFInR.
     Call convert_to_fasta to extract sequences in TSV file and convert to FASTA file.
     :param i: Path to input file, type must be str.
@@ -69,28 +70,82 @@ def initialize_run():
     """Initialize a ConFInR run by creating the required folder structure.
     Run folder name contains the date and time of the run.
     :raises OSError: If there is no such file or directory.
+    :return: Run folder name.
     """
     t = datetime.now()
-    run_id = ' '.join(['run', '-'.join([str(t.day), str(t.month), str(t.year)]),
-                       '-'.join([str(t.hour), str(t.minute), str(t.second)])])
+    run_id = ' '.join(['RUN', '-'.join([str(t.day), str(t.month), str(t.year)]),
+                       ''.join([str(t.hour) + 'h', str(t.minute) + 'm', str(t.second) + 's'])])
     try:
         if not os.path.exists(run_id):
             os.makedirs(run_id)
             os.chdir(run_id)
             for folder in DEFAULT_INIT_FOLDERS:
                 os.makedirs(folder)
+        return run_id
+    except OSError:
+        raise OSError
+
+
+def write_metadata(q=None, d=None):
+    """Write metadata file for ConFInR run to list input files and parameters.
+    :param q: Path to query file.
+    :param d: Path to DIAMOND database.
+    :raises OSError: If there is no such file or directory.
+    """
+    try:
+        with open(METADATA_FILE_PATH, 'a+') as f:
+            if q:
+                f.write('Query file: ' + q + '\n')
+            if d:
+                f.write('DIAMOND database ' + d + '\n')
+    # TODO: Add BLAST mode
+    # TODO: Add optional parameters
     except OSError:
         raise OSError
 
 
 @click.command()
-@click.option('--db', help='Path to DIAMOND database.')
-@click.option('--i', help='Path to input file.')
-@click.option('--makedb', help='Path to create DIAMOND database.')
-def todo(db, i, makedb):
-    # TODO: Check for makedb.
-        # TODO: Call function to create DIAMOND database.
-    # TODO: Call function to initialize ConFInR run.
-    # TODO: Call function to run DIAMOND.
-    # TODO: Call function to store run metadata.
-    return None
+@click.option('--i', help='Path to the input protein reference database file.')
+@click.option('--d', help='Path to the output DIAMOND database file.')
+def make_diamond_db(i: str, d: str):
+    """Run a shell command that creates a DIAMOND database.
+    :param ref: REFERENCE directory path to store database in.
+    :param i: Input file to create database with, either file name or full path to the file, type must be str.
+    :param d: Database name, type must be str.
+    """
+    # TODO: Implement ref as environment variable to ensure generic writing to correct folder.
+    command = 'diamond makedb --in ' + i + ' -d ' + d
+    call(command, shell=True)
+
+
+def run_diamond(d: str, q: str, run_id: str):
+    """Create path for o (output file) based on default folder structure.
+    Create path for d (database file) based on default folder structure if d is not an existing path.
+    Run a shell command that executes DIAMOND in BLASTX mode.
+    :param d: Path to the DIAMOND database file, type must be str.
+    :param q: Path to the query input file, type must be str.
+    :param run_id: Run folder name, type must be str.
+    """
+    o = './OUTPUT/matches.m8'
+    if not os.path.exists(d):
+        os.chdir('..')
+        d = os.getcwd() + '/REFERENCE/' + d
+        os.chdir(run_id)
+    command = 'diamond blastx -d ' + d + ' -q ' + q + ' -o ' + o
+    call(command, shell=True)
+
+
+@click.command()
+@click.option('--d', help='Path to the DIAMOND database file.')
+@click.option('--q', help='Path to the query input file.')
+def run_confinr(d: str, q: str):
+    """Perform a ConFInR run: initialize run folder structure, run DIAMOND and write metadata file.
+    :param d: Path to the DIAMOND database file, type must be str.
+    :param q: Path to the query input file, type must be str.
+    """
+    run_id = initialize_run()
+    run_diamond(d, q, run_id)
+    write_metadata(q=os.path.realpath(q))
+    # TODO: Correctly handle d file path: write_metadata(d=os.path.realpath(d))
+    # TODO: Add option to generically pass further arguments.
+    # TODO: EXCEPTION d and q must be passed
