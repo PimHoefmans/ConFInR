@@ -16,7 +16,7 @@ def load_input(input_path: str):
     :raises ValueError: If an incorrect object type is used.
     """
     try:
-        return pd.read_table(input_path, sep='\t', header='infer', index_col=0).loc[:, ['fw_seq', 'rvc_seq']]
+        return pd.read_table(input_path, sep='\t', header='infer', index_col=0, comment='#').loc[:, ['fw_seq', 'rvc_seq']]
     except KeyError:
         raise KeyError
     except FileNotFoundError:
