@@ -122,10 +122,10 @@ def run_diamond(d: str, q: str, run_id: str):
     :param q: Path to the query input file, type must be str.
     :param run_id: Run folder name, type must be str.
     """
-    o = os.getcwd() + '\OUTPUT\matches.m8'
+    o = './OUTPUT/matches.m8'
     if not os.path.exists(d):
         os.chdir('..')
-        d = os.getcwd() + '\REFERENCE\\' + d
+        d = os.getcwd() + '/REFERENCE/' + d
         os.chdir(run_id)
     command = 'diamond blastx -d ' + d + ' -q ' + q + ' -o ' + o
     call(command, shell=True)
