@@ -87,7 +87,11 @@ def initialize_run():
 
 
 def write_metadata(q=None, d=None):
-    # TODO: Write documentation
+    """Write metadata file for ConFInR run to list input files and parameters.
+    :param q: Path to query file.
+    :param d: Path to DIAMOND database.
+    :raises OSError: If there is no such file or directory.
+    """
     try:
         with open(METADATA_FILE_PATH, 'a+') as f:
             if q:
@@ -134,10 +138,14 @@ def run_diamond(d: str, q: str, run_id: str):
 @click.command()
 @click.option('--d', help='Path to the DIAMOND database file.')
 @click.option('--q', help='Path to the query input file.')
-def run_confinr(d, q):
-    # TODO: Write documentation.
+def run_confinr(d: str, q: str):
+    """Perform a ConFInR run: initialize run folder structure, run DIAMOND and write metadata file.
+    :param d: Path to the DIAMOND database file, type must be str.
+    :param q: Path to the query input file, type must be str.
+    """
     run_id = initialize_run()
-    write_metadata(q=os.path.realpath(q))
     run_diamond(d, q, run_id)
-    # TODO: Correctly handle d file path write_metadata(d=os.path.realpath(d))
+    write_metadata(q=os.path.realpath(q))
+    # TODO: Correctly handle d file path: write_metadata(d=os.path.realpath(d))
     # TODO: Add option to generically pass further arguments.
+    # TODO: EXCEPTION d and q must be passed
