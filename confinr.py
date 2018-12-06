@@ -131,10 +131,6 @@ def run_diamond(d: str, q: str, run_id: str):
     :param run_id: Run folder name, type must be str.
     """
     o = './OUTPUT/matches.m8'
-    ## INSIDE RUN
-    ## GO BACK TO CONFINR
-    ## GO TO REFERENCE
-    ## GO BACK TO RUN ID
     if not os.path.exists(d):
         os.chdir('..')
         d = os.getcwd() + '/REFERENCE/' + d
