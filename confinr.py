@@ -104,7 +104,7 @@ def write_metadata(q=None, d=None):
 @click.argument('ref', envvar='REFERENCE')
 @click.option('--i', help='Path to the input protein reference database file.')
 @click.option('--d', help='Path to the output DIAMOND database file.')
-def make_diamond_db(ref, i: str, d: str):
+def make_diamond_db(i: str, d: str):
     """Run a shell command that creates a DIAMOND database.
     :param ref: REFERENCE directory path to store database in.
     :param i: Input file to create database with, either file name or full path to the file, type must be str.
