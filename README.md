@@ -15,9 +15,63 @@ ConFInR is a Python tool for functional annotation of metagenomics sequences.
 
 ## Usage
 
+
+
+### Executing ConFInR from the command line
+After following the installation steps above, specific ConFInR functions can be executed directly from the command line. The commands including descriptions, parameters and code examples are listed below.
+
+#### confinr-preprocess
+Given a .tsv file, this function extracts sequences and converts to FASTA format.
+
+| Parameter | Description |
+| :-------- | :---------- |
+| --i       | Path to input file (.tvs)     |
+| --o       | Path to output file (.fasta)  |
+
+Code example: ```$ confinr-preprocess --i table.tsv --o sequences.fasta```
+
+
+#### confinr-makedb
+Given a protein reference database file (.fasta), this function creates a DIAMOND database in the REFERENCE folder. 
+
+| Parameter | Description |
+| :-------- | :---------- |
+| --d       | Path to the output DIAMOND database file (no file extension needed) |
+| --i       | Path to the input protein reference database file (.fasta)          |
+
+Code example: ```$ confinr-makedb --d database --o database.fasta```
+
+
+#### confinr-run
+Given an input file (.fasta), this function runs DIAMOND in BLASTX mode and stores the output in a run folder.
+
+| Parameter | Description |
+| :-------- | :---------- |
+| --d       | Path to the DIAMOND database file |
+| --q       | Path to the query input file      |
+
+Code example: ```$ confinr-run --d database --q sequences.fasta```
+
+
 ### Folder structure
-ConFInR's folder structure is shown below, including an example run folder. Run folders are automatically created when running ConFInR to store results and metadata and are named '_RUN [date] [time]_'.
-``` INSERT FOLDER TREE HERE ```
+ConFInR's folder structure is shown below, including an example run folder. Run folders are automatically created when running ConFInR to store results and metadata and are named '_RUN\_[date]\_[time]_'.
+```bash
+.
+├── README.md
+├── LICENSE
+├── requirements.txt
+├── confinr.py
+├── setup.pt
+├── REFERENCE
+│   └── database.dmnd
+└── RUN_date_time
+    ├── metadata.txt
+    ├── ANNOTATION
+    │   └── annotation.txt
+    └── OUTPUT
+        └── output.m8
+```
+
 ## Credits
 
 ## License
