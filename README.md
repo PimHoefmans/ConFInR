@@ -47,10 +47,11 @@ Given an input file (.fasta), this function runs DIAMOND in BLASTX mode and stor
 
 | Parameter | Description |
 | :-------- | :---------- |
-| --d       | Path to the DIAMOND database file |
-| --q       | Path to the query input file      |
+| --d       | Path to the DIAMOND database file                                     |
+| --q       | Path to the query input file                                          |
+| --params  | Optional DIAMOND parameters, surround multiple parameters with quotes |
 
-Code example: ```$ confinr-run --d database --q sequences.fasta```
+Code example: ```$ confinr-run --d database --q sequences.fasta --params '--sensitive --matrix PAM250'```
 
 
 ### Folder structure
