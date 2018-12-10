@@ -86,22 +86,27 @@ def initialize_run():
         raise OSError
 
 
-def write_metadata(q=None, d=None, run_id=None):
+def write_metadata(q=None, d=None, run_id=None, p=None):
     """Write metadata file for ConFInR run to list input files and parameters.
     :param q: Path to query file.
     :param d: Path to DIAMOND database.
+    :param run_id: Run folder name.
+    :param p: Optional DIAMOND parameters.
     :raises OSError: If there is no such file or directory.
     """
     try:
         with open(METADATA_FILE_PATH, 'a+') as f:
-            if q:
-                f.write('Query file: ' + q + '\n')
-            if d:
+            if q is not None:
+                f.write('Query file:\t' + q + '\n')
+            if d is not None:
                 if not os.path.exists(d):
                     os.chdir('..')
                     d = os.getcwd() + '/REFERENCE/' + d.split('/')[-1]
                     os.chdir(run_id)
-                f.write('DIAMOND database ' + d + '\n')
+                f.write('DIAMOND database:\t' + d + '\n')
+            if p is not None:
+                f.write('DIAMOND parameters: ' + ''.join(list('\t' + item.rstrip() + '\n' for item in p.replace('--',
+                        ',--').split(',')[1:])) + '\n')
     # TODO: Add BLAST mode
     # TODO: Add optional parameters
     except OSError:
@@ -122,13 +127,15 @@ def make_diamond_db(i: str, d: str):
     call(command, shell=True)
 
 
-def run_diamond(d: str, q: str, run_id: str):
+def run_diamond(d: str, q: str, run_id: str, params=None):
     """Create path for o (output file) based on default folder structure.
     Create path for d (database file) based on default folder structure if d is not an existing path.
+    Add optional DIAMOND parameters to shell command is parameter params is not None.
     Run a shell command that executes DIAMOND in BLASTX mode.
     :param d: Path to the DIAMOND database file, type must be str.
     :param q: Path to the query input file, type must be str.
     :param run_id: Run folder name, type must be str.
+    :param params: Optional DIAMOND parameters, multiple parameters should be surrounded with quotes, type must be str.
     """
     o = './OUTPUT/matches.m8'
     if not os.path.exists(d):
@@ -136,21 +143,24 @@ def run_diamond(d: str, q: str, run_id: str):
         d = os.getcwd() + '/REFERENCE/' + d
         os.chdir(run_id)
     command = 'diamond blastx -d ' + d + ' -q ' + q + ' -o ' + o
+    if params is not None:
+        command += ' '+params
     call(command, shell=True)
 
 
 @click.command()
 @click.option('--d', help='Path to the DIAMOND database file.')
 @click.option('--q', help='Path to the query input file.')
-def run_confinr(d: str, q: str):
+@click.option('--params', help='Optional DIAMOND parameters.')
+def run_confinr(d: str, q: str, params=None):
     """Perform a ConFInR run: initialize run folder structure, run DIAMOND and write metadata file.
     :param d: Path to the DIAMOND database file, type must be str.
     :param q: Path to the query input file, type must be str.
+    :param params: Optional DIAMOND parameters, multiple parameters should be surrounded with quotes, type must be str.
     """
     run_id = initialize_run()
-    run_diamond(d, q, run_id)
+    run_diamond(d, q, run_id, params)
     write_metadata(q=os.path.realpath(q))
     write_metadata(d=os.path.realpath(d), run_id=run_id)
-    # TODO: Correctly handle d file path: write_metadata(d=os.path.realpath(d))
-    # TODO: Add option to generically pass further arguments.
+    write_metadata(p=params)
     # TODO: EXCEPTION d and q must be passed
