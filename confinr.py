@@ -87,7 +87,7 @@ def initialize_run():
 
 
 def write_metadata(q=None, d=None, run_id=None, p=None):
-    """Write metadata file for ConFInR run to list input files and parameters.
+    """Write metadata file for ConFInR run to list input file, -database and parameters.
     :param q: Path to query file.
     :param d: Path to DIAMOND database.
     :param run_id: Run folder name.
