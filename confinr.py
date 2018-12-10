@@ -1,11 +1,12 @@
-from subprocess import call
 from datetime import datetime
-import pandas as pd
-import os
+from subprocess import call
 import click
+import os
+import pandas as pd
 
 DEFAULT_INIT_FOLDERS = ['OUTPUT', 'ANNOTATION']
 METADATA_FILE_PATH = 'metadata.txt'
+# TODO - Replace click.option with click.argument where necessary.
 
 
 def load_input(input_path: str):
@@ -73,7 +74,7 @@ def initialize_run():
     :return: Run folder name.
     """
     t = datetime.now()
-    run_id = ' '.join(['RUN', '-'.join([str(t.day), str(t.month), str(t.year)]),
+    run_id = '_'.join(['RUN', '-'.join([str(t.day), str(t.month), str(t.year)]),
                        ''.join([str(t.hour) + 'h', str(t.minute) + 'm', str(t.second) + 's'])])
     try:
         if not os.path.exists(run_id):
@@ -107,8 +108,6 @@ def write_metadata(q=None, d=None, run_id=None, p=None):
             if p is not None:
                 f.write('DIAMOND parameters: ' + ''.join(list('\t' + item.rstrip() + '\n' for item in p.replace('--',
                         ',--').split(',')[1:])) + '\n')
-    # TODO: Add BLAST mode
-    # TODO: Add optional parameters
     except OSError:
         raise OSError
 
@@ -122,7 +121,6 @@ def make_diamond_db(i: str, d: str):
     :param i: Input file to create database with, either file name or full path to the file, type must be str.
     :param d: Database name, type must be str.
     """
-    # TODO: Implement ref as environment variable to ensure generic writing to correct folder.
     command = 'diamond makedb --in ' + i + ' -d ' + d
     call(command, shell=True)
 
@@ -163,4 +161,3 @@ def run_confinr(d: str, q: str, params=None):
     write_metadata(q=os.path.realpath(q))
     write_metadata(d=os.path.realpath(d), run_id=run_id)
     write_metadata(p=params)
-    # TODO: EXCEPTION d and q must be passed
