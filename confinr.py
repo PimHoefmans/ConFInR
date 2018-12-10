@@ -6,10 +6,12 @@ import click
 
 DEFAULT_INIT_FOLDERS = ['OUTPUT', 'ANNOTATION']
 METADATA_FILE_PATH = 'metadata.txt'
+SEQUENCE_COLUMNS = ['fw_seq', 'rvc_seq']
 
 
 def load_input(input_path: str):
-    """Load data from tab-separated input file, convert to DataFrame and return only columns with sequences.
+    """Load input data from tab-separated file, convert to DataFrame.
+     Exclude non-flagged items from DataFrame and return only columns containing sequences.
     :param input_path: Path to the input file, type must be str.
     :return: DataFrame with forward and reverse complement sequences.
     :raises KeyError: If requested key (e.g. sequence) is absent and can't be loaded.
@@ -17,7 +19,8 @@ def load_input(input_path: str):
     :raises ValueError: If an incorrect object type is used.
     """
     try:
-        return pd.read_table(input_path, sep='\t', header='infer', index_col=0, comment='#').loc[:, ['fw_seq', 'rvc_seq']]
+        df = pd.read_table(input_path, sep='\t', header='infer', index_col=0, comment='#')
+        return df[~df.flagged].loc[:, SEQUENCE_COLUMNS]
     except KeyError:
         raise KeyError
     except FileNotFoundError:
