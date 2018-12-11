@@ -4,11 +4,10 @@ import click
 import os
 import pandas as pd
 
-# CONFINR_PATH = os.environ['CONFINR_PATH']
+CONFINR_PATH = os.environ['CONFINR_PATH']
 METADATA_FILE = 'metadata.txt'
 RUN_FOLDERS = ['OUTPUT', 'ANNOTATION']
 SEQUENCE_COLUMNS = ['fw_seq', 'rvc_seq']
-
 
 def check_env_var():
     """Check for the presence of environment variable 'CONFINR_PATH'.
@@ -182,3 +181,4 @@ def run_confinr(d: str, q: str, params: str):
     run_id = initialize_run()
     run_diamond(d, q, run_id, params)
     write_metadata(q=q, d=d, p=params, run_id=run_id)
+    
