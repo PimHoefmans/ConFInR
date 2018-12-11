@@ -13,9 +13,11 @@ ConFInR is a Python tool for functional annotation of metagenomics sequences.
 
 ## Installation
 
+### Set environment variable
+To ensure that ConFInR can efficiently handle data throughout your system, please store the path to the ConFInR folder in an environment variable:
+```$ export CONFINR_PATH=/path/to/confinr/folder```
+
 ## Usage
-
-
 
 ### Executing ConFInR from the command line
 After following the installation steps above, specific ConFInR functions can be executed directly from the command line. The commands including descriptions, parameters and code examples are listed below.
