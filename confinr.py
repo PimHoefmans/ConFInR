@@ -100,21 +100,23 @@ def initialize_run():
             os.chdir(run_id_folder)
             for folder in RUN_FOLDERS:
                 os.makedirs(folder)
+            os.chdir('..')
         return run_id
     except OSError:
         raise OSError
 
 
-def write_metadata(q=None, d=None, p=None):
+def write_metadata(q=None, d=None, p=None, run_id=None):
     """Write metadata file for ConFInR run that includes query file, database and parameters.
 
     :param q: Path to query file.
     :param d: Path to DIAMOND database.
     :param p: Optional DIAMOND parameters.
+    :param run_id: Run folder name.
     :raises OSError: If there is no such file or directory to create a file in.
     """
     try:
-        with open(METADATA_FILE, 'a+') as f:
+        with open('/'.join((CONFINR_PATH, run_id, METADATA_FILE)), 'a+') as f:
             if q is not None:
                 f.write('Query file:\t' + q + '\n')
             if d is not None:
@@ -179,4 +181,4 @@ def run_confinr(d: str, q: str, params: str):
     check_env_var()
     run_id = initialize_run()
     run_diamond(d, q, run_id, params)
-    write_metadata(q=q, d=d, p=params)
+    write_metadata(q=q, d=d, p=params, run_id=run_id)
