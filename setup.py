@@ -24,7 +24,7 @@ setup(
     install_requires=read_lines('requirements.txt'),
     entry_points='''
             [console_scripts]
-            confinr-preprocess=confinr:preprocess
+            confinr-convert=confinr:convert
             confinr-makedb=confinr:make_diamond_db
             confinr-run=confinr:run_confinr
         '''

@@ -1,19 +1,30 @@
-from subprocess import call
 from datetime import datetime
-import pandas as pd
-import os
+from subprocess import call
 import click
+import os
+import pandas as pd
 
-DEFAULT_INIT_FOLDERS = ['OUTPUT', 'ANNOTATION']
-METADATA_FILE_PATH = 'metadata.txt'
+CONFINR_PATH = os.environ['CONFINR_PATH']
+METADATA_FILE = 'metadata.txt'
+RUN_FOLDERS = ['OUTPUT', 'ANNOTATION']
 SEQUENCE_COLUMNS = ['fw_seq', 'rvc_seq']
+
+def check_env_var():
+    """Check for the presence of environment variable 'CONFINR_PATH'.
+
+    :raises Exception: If environment variable CONFINR_PATH is missing.
+    """
+    if 'CONFINR_PATH' not in os.environ:
+        raise Exception('Environment variable CONFINR_PATH is missing. Check the README for installation details.')
 
 
 def load_input(input_path: str):
-    """Load input data from tab-separated file, convert to DataFrame.
-     Exclude non-flagged items from DataFrame and return only columns containing sequences.
-    :param input_path: Path to the input file, type must be str.
-    :return: DataFrame with forward and reverse complement sequences.
+    """Load tab-delimited input data.
+
+    Load tab-delimited data from input file and convert to DataFrame.
+    Exclude columns where 'flagged' (column) is False. Extract sequences from selected columns.
+    :param input_path: Path to input file.
+    :return: DataFrame with forward- and reverse complement sequences.
     :raises KeyError: If requested key (e.g. sequence) is absent and can't be loaded.
     :raises FileNotFoundError: If file_path doesn't refer to an existing file.
     :raises ValueError: If an incorrect object type is used.
@@ -30,11 +41,12 @@ def load_input(input_path: str):
 
 
 def convert_to_fasta(df: pd.DataFrame, output_path: str):
-    """Convert sequences and headers in DataFrame to FASTA-format.
-    Include postfixes '/1' for forward- and '/2' for reverse complement sequences in FASTA header.
-    :param df: DataFrame containing sequences (columns) and headers (row indices), type must be pd.DataFrame.
-    :param output_path: Path to output file, type must be str.
-    :return: File with sequences in FASTA-format.
+    """Convert tab-delimited data (.TSV) to FASTA format and write to a file.
+
+    Include postfixes '/1' (forward sequences) and '/2' (reverse complement sequences) in FASTA header.
+    Write formatted data to a file.
+    :param df: DataFrame, should contain columns 'fw_seq' and 'rvc_seq' & headers as row indices to extract data from.
+    :param output_path: Path to output file.
     :raises KeyError: If requested key (e.g. sequence) is absent and can't be loaded.
     :raises ValueError: If an incorrect object type is used.
     :raises FileExistsError: If output_path refers to an existing file.
@@ -58,91 +70,115 @@ def convert_to_fasta(df: pd.DataFrame, output_path: str):
 
 
 @click.command()
-@click.option('--i', help='Path to input file.')
-@click.option('--o', help='Path for output file')
-def preprocess(i: str, o: str):
-    """Call pre-processing function(s) to generate data for ConFInR.
-    Call convert_to_fasta to extract sequences in TSV file and convert to FASTA file.
-    :param i: Path to input file, type must be str.
-    :param o: Path for output file, type must be str.
+@click.argument('i')
+@click.option('--o', default='output.fasta', help='Path for output file')
+def convert(i: str, o: str):
+    """Convert tab-delimited data (in .TSV file) to FASTA format (in .FASTA file).
+
+    :param i: Path to input file.
+    :param o: Optional path for output file.
     """
     convert_to_fasta(load_input(i), o)
 
 
 def initialize_run():
     """Initialize a ConFInR run by creating the required folder structure.
-    Run folder name contains the date and time of the run.
-    :raises OSError: If there is no such file or directory.
+
+    Generate a run_id based on the date and time.
+    Create defined run folders inside folder named after run_id.
+    :raises OSError: If there is no such file or directory to create folders in.
     :return: Run folder name.
     """
     t = datetime.now()
-    run_id = ' '.join(['RUN', '-'.join([str(t.day), str(t.month), str(t.year)]),
+    run_id = '_'.join(['RUN', '-'.join([str(t.day), str(t.month), str(t.year)]),
                        ''.join([str(t.hour) + 'h', str(t.minute) + 'm', str(t.second) + 's'])])
+    run_id_folder = '/'.join((CONFINR_PATH, run_id))
     try:
-        if not os.path.exists(run_id):
-            os.makedirs(run_id)
-            os.chdir(run_id)
-            for folder in DEFAULT_INIT_FOLDERS:
+        if not os.path.exists(run_id_folder):
+            os.makedirs(run_id_folder)
+            os.chdir(run_id_folder)
+            for folder in RUN_FOLDERS:
                 os.makedirs(folder)
+            os.chdir('..')
         return run_id
     except OSError:
         raise OSError
 
 
-def write_metadata(q=None, d=None):
-    """Write metadata file for ConFInR run to list input files and parameters.
+def write_metadata(q=None, d=None, p=None, run_id=None):
+    """Write metadata file for ConFInR run that includes query file, database and parameters.
+
     :param q: Path to query file.
     :param d: Path to DIAMOND database.
-    :raises OSError: If there is no such file or directory.
+    :param p: Optional DIAMOND parameters.
+    :param run_id: Run folder name.
+    :raises OSError: If there is no such file or directory to create a file in.
     """
     try:
-        with open(METADATA_FILE_PATH, 'a+') as f:
-            if q:
-                f.write('Query file: ' + q + '\n')
-            if d:
-                f.write('DIAMOND database ' + d + '\n')
+        with open('/'.join((CONFINR_PATH, run_id, METADATA_FILE)), 'a+') as f:
+            if q is not None:
+                f.write('Query file:\t' + q + '\n')
+            if d is not None:
+                if not os.path.exists(d):
+                    d = '/'.join((CONFINR_PATH, 'REFERENCE', d))
+                f.write('DIAMOND database:\t' + d + '\n')
+            if p is not None:
+                f.write('DIAMOND parameters: ' + ''.join(list('\t' + item.rstrip() + '\n' for item in p.replace('--',
+                        ',--').split(',')[1:])) + '\n')
     except OSError:
         raise OSError
 
 
 @click.command()
-@click.option('--i', help='Path to the input protein reference database file.')
-@click.option('--d', help='Path to the output DIAMOND database file.')
+@click.argument('i')
+@click.argument('d')
 def make_diamond_db(i: str, d: str):
-    """Run a shell command that creates a DIAMOND database.
-    :param ref: REFERENCE directory path to store database in.
-    :param i: Input file to create database with, either file name or full path to the file, type must be str.
-    :param d: Database name, type must be str.
+    """Run DIAMOND's makedb function in command line.
+
+    Create DIAMOND command with input and database to be executed.
+    Run DIAMOND command in shell.
+    :param i: Path to input file.
+    :param d: Path to DIAMOND database file.
     """
-    command = 'diamond makedb --in ' + i + ' -d ' + d
+    check_env_var()
+    command = 'diamond makedb --in ' + i + ' -d ' + '/'.join((CONFINR_PATH, 'REFERENCE', d))
     call(command, shell=True)
 
 
-def run_diamond(d: str, q: str, run_id: str):
-    """Create path for o (output file) based on default folder structure.
-    Create path for d (database file) based on default folder structure if d is not an existing path.
-    Run a shell command that executes DIAMOND in BLASTX mode.
-    :param d: Path to the DIAMOND database file, type must be str.
-    :param q: Path to the query input file, type must be str.
-    :param run_id: Run folder name, type must be str.
+def run_diamond(d: str, q: str, run_id: str, params=None):
+    """Run DIAMOND in BLASTX mode in command line.
+
+    Resolve paths for output and database.
+    Create DIAMOND command with database, query- and output file to be executed.
+    Optionally, append parameters to command.
+    Run DIAMOND command in shell.
+    :param d: Path to DIAMOND database file.
+    :param q: Path to query input file.
+    :param run_id: Run folder name.
+    :param params: Optional DIAMOND parameter(s), multiple should be surrounded with quotes.
     """
-    o = './OUTPUT/matches.m8'
+    o = '/'.join((CONFINR_PATH, run_id, 'OUTPUT/matches.m8'))
     if not os.path.exists(d):
-        os.chdir('..')
-        d = os.getcwd() + '/REFERENCE/' + d
-        os.chdir(run_id)
+        d = '/'.join((CONFINR_PATH, 'REFERENCE', d))
     command = 'diamond blastx -d ' + d + ' -q ' + q + ' -o ' + o
+    if params is not None:
+        command += ' '+params
     call(command, shell=True)
 
 
 @click.command()
-@click.option('--d', help='Path to the DIAMOND database file.')
-@click.option('--q', help='Path to the query input file.')
-def run_confinr(d: str, q: str):
-    """Perform a ConFInR run: initialize run folder structure, run DIAMOND and write metadata file.
-    :param d: Path to the DIAMOND database file, type must be str.
-    :param q: Path to the query input file, type must be str.
+@click.argument('d')
+@click.argument('q')
+@click.option('--params', default=None, help='Optional DIAMOND parameters.')
+def run_confinr(d: str, q: str, params: str):
+    """Perform a ConFInR run; initialize run folder, run DIAMOND and write metadata file.
+
+    :param d: Path to DIAMOND database file.
+    :param q: Path to input query file.
+    :param params: Optional DIAMOND parameter(s), multiple should be surrounded with quotes.
     """
+    check_env_var()
     run_id = initialize_run()
-    run_diamond(d, q, run_id)
-    write_metadata(q=os.path.realpath(q))
+    run_diamond(d, q, run_id, params)
+    write_metadata(q=q, d=d, p=params, run_id=run_id)
+    
