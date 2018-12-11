@@ -138,8 +138,8 @@ def make_diamond_db(i: str, d: str):
 
     Create DIAMOND command with input and database to be executed.
     Run DIAMOND command in shell.
-    :param i: Path to the input file.
-    :param d: Path to the DIAMOND database file.
+    :param i: Path to input file.
+    :param d: Path to DIAMOND database file.
     """
     check_env_var()
     command = 'diamond makedb --in ' + i + ' -d ' + '/'.join((CONFINR_PATH, 'REFERENCE', d))
@@ -153,8 +153,8 @@ def run_diamond(d: str, q: str, run_id: str, params=None):
     Create DIAMOND command with database, query- and output file to be executed.
     Optionally, append parameters to command.
     Run DIAMOND command in shell.
-    :param d: Path to the DIAMOND database file.
-    :param q: Path to the query input file.
+    :param d: Path to DIAMOND database file.
+    :param q: Path to query input file.
     :param run_id: Run folder name.
     :param params: Optional DIAMOND parameter(s), multiple should be surrounded with quotes.
     """
