@@ -6,10 +6,12 @@ import click
 
 DEFAULT_INIT_FOLDERS = ['OUTPUT', 'ANNOTATION']
 METADATA_FILE_PATH = 'metadata.txt'
+SEQUENCE_COLUMNS = ['fw_seq', 'rvc_seq']
 
 
 def load_input(input_path: str):
-    """Load data from tab-separated input file, convert to DataFrame and return only columns with sequences.
+    """Load input data from tab-separated file, convert to DataFrame.
+     Exclude non-flagged items from DataFrame and return only columns containing sequences.
     :param input_path: Path to the input file, type must be str.
     :return: DataFrame with forward and reverse complement sequences.
     :raises KeyError: If requested key (e.g. sequence) is absent and can't be loaded.
@@ -17,7 +19,8 @@ def load_input(input_path: str):
     :raises ValueError: If an incorrect object type is used.
     """
     try:
-        return pd.read_table(input_path, sep='\t', header='infer', index_col=0, comment='#').loc[:, ['fw_seq', 'rvc_seq']]
+        df = pd.read_table(input_path, sep='\t', header='infer', index_col=0, comment='#')
+        return df[~df.flagged].loc[:, SEQUENCE_COLUMNS]
     except KeyError:
         raise KeyError
     except FileNotFoundError:
@@ -98,8 +101,6 @@ def write_metadata(q=None, d=None):
                 f.write('Query file: ' + q + '\n')
             if d:
                 f.write('DIAMOND database ' + d + '\n')
-    # TODO: Add BLAST mode
-    # TODO: Add optional parameters
     except OSError:
         raise OSError
 
@@ -113,7 +114,6 @@ def make_diamond_db(i: str, d: str):
     :param i: Input file to create database with, either file name or full path to the file, type must be str.
     :param d: Database name, type must be str.
     """
-    # TODO: Implement ref as environment variable to ensure generic writing to correct folder.
     command = 'diamond makedb --in ' + i + ' -d ' + d
     call(command, shell=True)
 
@@ -146,6 +146,3 @@ def run_confinr(d: str, q: str):
     run_id = initialize_run()
     run_diamond(d, q, run_id)
     write_metadata(q=os.path.realpath(q))
-    # TODO: Correctly handle d file path: write_metadata(d=os.path.realpath(d))
-    # TODO: Add option to generically pass further arguments.
-    # TODO: EXCEPTION d and q must be passed
