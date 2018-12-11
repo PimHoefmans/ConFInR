@@ -69,7 +69,7 @@ ConFInR's folder structure is shown below, including an example run folder. Run 
     ├── ANNOTATION
     │   └── annotation.txt
     └── OUTPUT
-        └── output.m8
+        └── matches.m8
 ```
 
 ## Credits
