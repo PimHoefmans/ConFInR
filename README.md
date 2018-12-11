@@ -22,39 +22,36 @@ To ensure that ConFInR can efficiently handle data throughout your system, pleas
 ### Executing ConFInR from the command line
 After following the installation steps above, specific ConFInR functions can be executed directly from the command line. The commands including descriptions, parameters and code examples are listed below.
 
-#### confinr-preprocess
+#### confinr-convert
 Given a .tsv file, this function extracts sequences and converts to FASTA format.
 
-| Parameter | Description |
-| :-------- | :---------- |
-| --i       | Path to input file (.tvs)     |
-| --o       | Path to output file (.fasta)  |
+| Parameter | Description            | Optional |
+| :-------- | :--------------------- | :------- |
+| i         | Path to input file.    | No       |
+| o         | Path for output file.  | Yes      |
 
-Code example: ```$ confinr-preprocess --i table.tsv --o sequences.fasta```
-
+Code example: ```$ confinr-convert table.tsv --o sequences.fasta```
 
 #### confinr-makedb
 Given a protein reference database file (.fasta), this function creates a DIAMOND database in the REFERENCE folder. 
 
-| Parameter | Description |
-| :-------- | :---------- |
-| --d       | Path to the output DIAMOND database file (no file extension needed) |
-| --i       | Path to the input protein reference database file (.fasta)          |
+| Parameter | Description                    | Optional |
+| :-------- | :----------------------------- | :------- |
+| d         | Path to input file.            | No       |
+| i         | Path to DIAMOND database file. | No       |
 
-Code example: ```$ confinr-makedb --d database --o database.fasta```
-
+Code example: ```$ confinr-makedb database database.fasta```
 
 #### confinr-run
 Given an input file (.fasta), this function runs DIAMOND in BLASTX mode and stores the output in a run folder.
 
-| Parameter | Description |
-| :-------- | :---------- |
-| --d       | Path to the DIAMOND database file                                     |
-| --q       | Path to the query input file                                          |
-| --params  | Optional DIAMOND parameters, surround multiple parameters with quotes |
+| Parameter | Description                                                              | Optional |
+| :-------- | :----------------------------------------------------------------------- | :------- |
+| d         | Path to DIAMOND database file                                            | No       | 
+| q         | Path to query input file                                                 | No       |
+| params    | Optional DIAMOND parameter(s), multiple should be surrounded with quotes | Yes      |
 
-Code example: ```$ confinr-run --d database --q sequences.fasta --params '--sensitive --matrix PAM250'```
-
+Code example: ```$ confinr-run database sequences.fasta --params '--sensitive --matrix PAM250'```
 
 ### Folder structure
 ConFInR's folder structure is shown below, including an example run folder. Run folders are automatically created when running ConFInR to store results and metadata and are named '_RUN\_[date]\_[time]_'.
