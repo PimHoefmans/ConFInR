@@ -4,7 +4,7 @@ import click
 import os
 import pandas as pd
 
-CONFINR_PATH = os.environ['CONFINR_PATH']
+# CONFINR_PATH = os.environ['CONFINR_PATH']
 METADATA_FILE = 'metadata.txt'
 RUN_FOLDERS = ['OUTPUT', 'ANNOTATION']
 SEQUENCE_COLUMNS = ['fw_seq', 'rvc_seq']
