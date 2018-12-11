@@ -101,8 +101,6 @@ def write_metadata(q=None, d=None):
                 f.write('Query file: ' + q + '\n')
             if d:
                 f.write('DIAMOND database ' + d + '\n')
-    # TODO: Add BLAST mode
-    # TODO: Add optional parameters
     except OSError:
         raise OSError
 
@@ -116,7 +114,6 @@ def make_diamond_db(i: str, d: str):
     :param i: Input file to create database with, either file name or full path to the file, type must be str.
     :param d: Database name, type must be str.
     """
-    # TODO: Implement ref as environment variable to ensure generic writing to correct folder.
     command = 'diamond makedb --in ' + i + ' -d ' + d
     call(command, shell=True)
 
@@ -149,6 +146,3 @@ def run_confinr(d: str, q: str):
     run_id = initialize_run()
     run_diamond(d, q, run_id)
     write_metadata(q=os.path.realpath(q))
-    # TODO: Correctly handle d file path: write_metadata(d=os.path.realpath(d))
-    # TODO: Add option to generically pass further arguments.
-    # TODO: EXCEPTION d and q must be passed
