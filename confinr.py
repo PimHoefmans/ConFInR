@@ -116,6 +116,7 @@ def write_metadata(q=None, d=None, p=None, run_id=None):
                     d = '/'.join((CONFINR_PATH, 'REFERENCE', d))
                 f.write('DIAMOND database:\t' + d + '\n')
             if p is not None:
+                # TODO: Differentiate between single and double hyphens in parameters.
                 f.write('DIAMOND parameters: ' + ''.join(list('\t' + item.rstrip() + '\n' for item in p.replace('--',
                         ',--').split(',')[1:])) + '\n')
     except OSError:
