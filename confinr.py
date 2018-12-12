@@ -10,14 +10,6 @@ METADATA_FILE = 'metadata.txt'
 RUN_FOLDERS = ['OUTPUT', 'ANNOTATION']
 SEQUENCE_COLUMNS = ['fw_seq', 'rvc_seq']
 
-def check_env_var():
-    """Check for the presence of environment variable 'CONFINR_PATH'.
-
-    :raises Exception: If environment variable CONFINR_PATH is missing.
-    """
-    if 'CONFINR_PATH' not in os.environ:
-        raise Exception('Environment variable CONFINR_PATH is missing. Check the README for installation details.')
-
 
 def load_input(input_path: str):
     """Load tab-delimited input data.
@@ -141,10 +133,8 @@ def make_diamond_db(i: str, d: str):
     :param i: Path to input file.
     :param d: Path to DIAMOND database file.
     """
-    #check_env_var()
     command = 'diamond makedb --in ' + i + ' -d ' + '/'.join((CONFINR_PATH, 'REFERENCE', d))
-    print(call)
-    # call(command, shell=True)
+    call(command, shell=True)
 
 
 def run_diamond(d: str, q: str, run_id: str, params=None):
@@ -165,8 +155,7 @@ def run_diamond(d: str, q: str, run_id: str, params=None):
     command = 'diamond blastx -d ' + d + ' -q ' + q + ' -o ' + o
     if params is not None:
         command += ' '+params
-    print(command)
-    # call(command, shell=True)
+    call(command, shell=True)
 
 
 @click.command()
@@ -180,8 +169,6 @@ def run_confinr(d: str, q: str, params: str):
     :param q: Path to input query file.
     :param params: Optional DIAMOND parameter(s), multiple should be surrounded with quotes.
     """
-    #check_env_var()
-    print(CONFINR_PATH)
     run_id = initialize_run()
     run_diamond(d, q, run_id, params)
     write_metadata(q=q, d=d, p=params, run_id=run_id)
