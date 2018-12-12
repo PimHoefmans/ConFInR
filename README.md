@@ -71,3 +71,4 @@ ConFInR's folder structure is shown below, including an example run folder. Run 
 ## Credits
 
 ## License
+This project is licensed under the MIT license, see [LICENSE](https://github.com/kjradem/ConFInR/blob/master/LICENSE) for details.
