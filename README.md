@@ -3,7 +3,8 @@
 **This is the command-line version, please switch to branch [webapp-release](https://github.com/kjradem/ConFInR/tree/webapp-release) for the web-application version (currently work in progress, 13-Dec-2018).**
 
 ## Description
-ConFInR is yet another metagenomics Python tool for functional annotation of metagenomics sequences. This is done by using the output from the preprocessing application: YEET. This file is then converted to a fasta file for further processes. A diamond database is created using a database file placed in the according folder. The fasta file is blasted against this diamond database to find the matches of the sequences
+**ConFInR** is a Python tool used for functional annotation of nucleotide sequences from metagenomics experiments.
+Its predecessor YEET performs the pre-processing steps needed to filter out reads. ConFInR continues with this output and executes it against DIAMOND, a high performance sequence aligner, to align proteins to them and in turn annotate the protein's functions to the nucleotide sequences in another web-tool.
 
 ## Table Of Contents
 * [Description](https://github.com/kjradem/ConFInR/tree/cl-release/README.md#description)
