@@ -98,15 +98,15 @@ ConFInR's folder structure is shown below, including an example run folder. Run 
 ├── LICENSE
 ├── requirements.txt
 ├── confinr.py
-├── setup.pt
+├── setup.py
 ├── REFERENCE
-│   └── database.dmnd
-└── RUN_date_time
-    ├── metadata.txt
-    ├── ANNOTATION
-    │   └── annotation.txt
-    └── OUTPUT
-        └── matches.m8
+│   └── database.dmnd         < result of confinr-makedb
+└── RUN_date_time             < result of confinr-run
+    ├── metadata.txt
+    ├── ANNOTATION
+    │   └── annotation.txt
+    └── OUTPUT
+        └── matches.m8
 ```
 
 ## Credits
