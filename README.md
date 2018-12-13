@@ -12,7 +12,36 @@ ConFInR is a Python tool for functional annotation of metagenomics sequences.
 * [License](https://github.com/kjradem/ConFInR/blob/master/LICENSE)
 
 ## Installation
+1. Make sure that the correct python version is installed (<= python 3.6)
 
+2. Make sure virtualenv is installed as well:
+
+`(sudo) pip3 install virtualenv`
+
+3. Clone from the ConFInR repository:
+
+`git clone https://github.com/kjradem/ConFInR.git`
+
+4. Set up a virtual environment with virtualenv:
+
+`virtualenv -p python3 venv`
+
+5. Start up the virtual environment:
+
+`source/ venv/bin/activate`
+
+6. Install all the required Python packages needed to run ConFIGnR:
+
+`pip3 install -r requirements.txt` 
+
+7. Download the database you wish to use for blasting 
+
+(8. Place the database file in the map named REFERENCE) perhaps this step should be done later down the line? 
+
+9. Once you've completed your work, deactivate the virtual environment using the following command
+
+`deactivate`
+``
 ## Usage
 
 ### Executing ConFInR from the command line
