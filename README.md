@@ -1,16 +1,17 @@
 # ConFInR
 
+**This is the command-line version, please switch to branch [webapp-release](https://github.com/kjradem/ConFInR/tree/webapp-release) for the web-application version (currently work in progress, 13-Dec-2018).**
+
 ## Description
 ConFInR is yet another metagenomics Python tool for functional annotation of metagenomics sequences. This is done by using the output from the preprocessing application: YEET. This file is then converted to a fasta file for further processes. A diamond database is created using a database file placed in the according folder. The fasta file is blasted against this diamond database to find the matches of the sequences
 
-
 ## Table Of Contents
-* [Description](https://github.com/kjradem/ConFInR/blob/master/README.md#description)
-* [Table Of Contents](https://github.com/kjradem/ConFInR/blob/master/README.md#table-of-contents)
-* [Installation](https://github.com/kjradem/ConFInR/blob/master/README.md#installation)
-* [Usage](https://github.com/kjradem/ConFInR/blob/master/README.md#usage)
-* [Credits](https://github.com/kjradem/ConFInR/blob/master/README.md#credits)
-* [License](https://github.com/kjradem/ConFInR/blob/master/LICENSE)
+* [Description](https://github.com/kjradem/ConFInR/tree/cl-release/README.md#description)
+* [Table Of Contents](https://github.com/kjradem/ConFInR/tree/cl-release/README.md#table-of-contents)
+* [Installation](https://github.com/kjradem/ConFInR/tree/cl-release/README.md#installation)
+* [Usage](https://github.com/kjradem/ConFInR/tree/cl-release/README.md#usage)
+* [Credits](https://github.com/kjradem/ConFInR/tree/cl-release/README.md#credits)
+* [License](https://github.com/kjradem/ConFInR/tree/cl-releasee/LICENSE)
 
 ## Installation
 
@@ -49,7 +50,7 @@ ConFInR is yet another metagenomics Python tool for functional annotation of met
 4. Install dependencies in the virtual environment:
 `(sudo) pip3 install --editable .`
 
-5. You can now use ConFInR in the command line, see [Usage](https://github.com/kjradem/ConFInR/blob/master/README.md#usage) for details on this. After usage you can deactivate your virtual environment with:
+5. You can now use ConFInR in the command line, see [Usage](https://github.com/kjradem/ConFInR/tree/cl-release/README.md#usage) for details on this. After usage you can deactivate your virtual environment with:
 
 `deactivate`
 
