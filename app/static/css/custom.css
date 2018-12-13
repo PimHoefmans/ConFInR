@@ -1,0 +1,36 @@
+.image_error {
+    color: red;
+    font-weight: bold;
+}
+
+#min_A_value {
+    width: 4em;
+}
+
+#min_T_value {
+    width: 4em;
+}
+
+#min_G_value {
+    width: 4em;
+}
+
+#min_C_value {
+    width: 4em;
+}
+
+#max_A_value {
+    width: 4em;
+}
+
+#max_T_value {
+    width: 4em;
+}
+
+#max_G_value {
+    width: 4em;
+}
+
+#max_C_value {
+    width: 4em;
+}

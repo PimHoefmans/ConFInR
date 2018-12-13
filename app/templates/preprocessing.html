@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts/Visualize_Forward_Reverse_Compare.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts/visualizeSequenceLength.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts/visualizePairedReads.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts/visualizeNucleotidePercentage.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts/utils.js') }}"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/custom.css') }}">
+{% endblock %}
+
+
+{% block app_content %}
+
+    <h2>YEET visualization</h2>
+    <div class="row">
+        <div class="col-sm-3">
+            <h4>Parameters</h4>
+            <br>
+            <h4>Paired reads</h4>
+            <input type="checkbox" id="checkPaired" checked> Filter unpaired reads?
+            <br><hr>
+            <h4>Nucleotide ratio</h4>
+            Size of nucleotide percentage bins
+            <input  type="range" id="nucleotide_bin_size" min="10" max="100" value="20" step="10">
+            <span>Value: </span><span id="binValue">20</span>
+            <script>
+                var binSlider = document.getElementById("nucleotide_bin_size");
+                var binValue = document.getElementById("binValue");
+                binValue.innerHTML = binSlider.value;
+                binSlider.oninput = function(){
+                    binValue.innerHTML = this.value;
+                }
+            </script>
+            <br><br>
+            Minimum nucleotide percentage
+            <br>
+            <table>
+                <tr>
+                    <th>A%</th>
+                    <th>T%</th>
+                </tr>
+                <tr>
+                    <td><input type="number" id="min_A_value" name="min_A_value" min="0" max="100" value="0" step="1"></td>
+                    <td><input type="number" id="min_T_value" name="min_T_value" min="0" max="100" value="0" step="1"></td>
+
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <th>G%</th>
+                    <th>C%</th>
+                </tr>
+                <tr>
+                    <td><input type="number" id="min_G_value" name="min_G_value" min="0" max="100" value="0" step="1"></td>
+                    <td><input type="number" id="min_C_value" name="min_C_value" min="0" max="100" value="0" step="1"></td>
+                </tr>
+            </table>
+            <br>Maximum nucleotide percentage
+            <br>
+            <table>
+                <tr>
+                    <th>A%</th>
+                    <th>T%</th>
+                </tr>
+                <tr>
+                    <td><input type="number" id="max_A_value" name="max_A_value" min="0" max="100" value="100" step="1"></td>
+                    <td><input type="number" id="max_T_value" name="max_T_value" min="0" max="100" value="100" step="1"></td>
+
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <th>G%</th>
+                    <th>C%</th>
+                </tr>
+                <tr>
+                    <td><input type="number" id="max_G_value" name="max_G_value" min="0" max="100" value="100" step="1"></td>
+                    <td><input type="number" id="max_C_value" name="max_C_value" min="0" max="100" value="100" step="1"></td>
+                </tr>
+            </table>
+            <br><hr>
+            <h4>Sequence length</h4>
+            Minimum sequence length
+            <input type="number" id="min_seq_len" name="min_len" min="1" max="99999" value="0">
+            <br>Maximum sequence length
+            <input type="number" id="max_seq_len" name="max_len" min="1" max="99999" value="301">
+            <hr>
+            <h4>Identity reads</h4>
+            Minimum identity percentage paired reads<input type="number" id="paired_read_percentage" name="percentage" min="1" max="100" value="0" step="1">
+            <br>
+            <br><button onclick="download_tsv()">Export to tsv</button>
+
+        </div>
+        <div class="col-sm-9">
+            <div>
+                <h4>Input files</h4>
+                {% if form %}
+                    {{ wtf.quick_form(form) }}
+                    <br>
+                {% endif %}
+                <hr>
+            </div>
+
+            <div>
+
+                <h4>Paired reads</h4>
+                <button onclick="make_paired_image()">Make paired reads image</button>
+                <p id="paired_error" class="image_error"></p>
+                <div id="pairsImage"></div>
+                <hr>
+            </div>
+            <div>
+                <h4>Nucleotide ratio</h4>
+                <button onclick="make_nucleotide_image()">Make nucleotide ratio image</button>
+                <p id="nucleotide_error" class="image_error"></p>
+                <div id="fwNucleotideImage"></div>
+                <div id="rvcNucleotideImage"></div>
+                <hr>
+            </div>
+            <div>
+                <h4>Sequence length</h4>
+                <button onclick="make_seq_image()">Make sequence image</button>
+                <p id="sequence_error" class="image_error"></p>
+                <div id="sequenceImage"></div>
+                <hr>
+            </div>
+
+
+            <div>
+                <h4>Identity reads</h4>
+                <button onclick="make_identity_image()">Make identity reads image</button>
+                <p id="identity_error" class="image_error"></p>
+                <div id="identityImage"></div>
+                <hr>
+            </div>
+            <!--<script>-->
+            <!--function make_quality_image(){-->
+            <!--var qValue = $( "#QualitySlider" ).val()-->
+            <!--var post_qual = $.post( 'http://127.0.0.1:5000/api/paired',-->
+            <!--{ "qValue" : qValue });-->
+            <!--post_qual.done(function( response ) {-->
+            <!--alert(response);-->
+            <!--});-->
+            <!--}-->
+            <!--</script>-->
+        </div>
+    </div>
+
+{% endblock %}

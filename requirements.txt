@@ -1,2 +1,9 @@
+flask==1.0.2
+python-dotenv==0.9.1
+flask-bootstrap==3.3.7.1
+flask-mail==0.9.1
+flask-wtf==0.14.2
+requests==2.20.1
+biopython==1.72
 pandas==0.23.4
 click==7.0
