@@ -3,7 +3,6 @@ from subprocess import call
 import click
 import os
 import pandas as pd
-import sys
 
 CONFINR_PATH = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 METADATA_FILE = 'metadata.txt'
@@ -116,8 +115,7 @@ def write_metadata(q=None, d=None, p=None, run_id=None):
                     d = '/'.join((CONFINR_PATH, 'REFERENCE', d))
                 f.write('DIAMOND database:\t' + d + '\n')
             if p is not None:
-                f.write('DIAMOND parameters: ' + ''.join(list('\t' + item.rstrip() + '\n' for item in p.replace('--',
-                        ',--').split(',')[1:])) + '\n')
+                f.write('DIAMOND parameters:\t' + p.replace(' -', ', -') + '\n')
     except OSError:
         raise OSError
 
