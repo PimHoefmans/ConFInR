@@ -3,6 +3,7 @@
 ## Description
 ConFInR is yet another metagenomics Python tool for functional annotation of metagenomics sequences. This is done by using the output from the preprocessing application: YEET. This file is then converted to a fasta file for further processes. A diamond database is created using a database file placed in the according folder. The fasta file is blasted against this diamond database to find the matches of the sequences
 
+
 ## Table Of Contents
 * [Description](https://github.com/kjradem/ConFInR/blob/master/README.md#description)
 * [Table Of Contents](https://github.com/kjradem/ConFInR/blob/master/README.md#table-of-contents)
@@ -12,44 +13,46 @@ ConFInR is yet another metagenomics Python tool for functional annotation of met
 * [License](https://github.com/kjradem/ConFInR/blob/master/LICENSE)
 
 ## Installation
-1. Make sure that the correct python version is installed (<= python 3.6)
 
-2. Make sure virtualenv is installed as well:
+#### Pre-requisites
+1. Ensure that Python 3 is installed, including pip (which should be by default).
+2. Install virtualenv:
 
 `(sudo) pip3 install virtualenv`
 
-3. Clone from the ConFInR repository:
+#### DIAMOND
+1. Install DIAMOND from the [Git repository](https://github.com/bbuchfink/diamond) and extract the binary file:
 
-`git clone https://github.com/kjradem/ConFInR.git`
+`wget http://github.com/bbuchfink/diamond/releases/download/v0.9.23/diamond-linux64.tar.gz`
 
-4. Install Diamond by cloning the DIAMOND repository:
+`tar xzf diamond-linux64.tar.gz`
 
-`git clone https://github.com/bbuchfink/diamond.git`
+2. Move the binary file _diamond_ to a directory contained in your executable search path (PATH environment variable):
 
-5. Move Diamond to the PATH environment, note that the <user> in the example code below is the name of the user.
+`(sudo) mv diamond /usr/bin`
 
-`sudo mv diamond /<user>/bin`
+#### ConFInR
+1. Clone the ConFInR repository and switch to the command-line branch:
 
-6. Set up a virtual environment with virtualenv:
+`(sudo) git clone https://github.com/kjradem/ConFInR.git`
 
-`virtualenv -p python3 venv`
+`(sudo) git checkout cl-release`
 
-7. Start up the virtual environment:
+2. Set up a virtual environment with virtualenv:
 
-`source/ venv/bin/activate`
+`(sudo) virtualenv -p python3 venv`
 
-8. Install all the required Python packages needed to run ConFIGnR:
+3. Activate the virtual environment:
 
-`pip3 install -r requirements.txt` 
+`source venv/bin/activate`
 
-9. Download the database you wish to use for blasting .
+4. Install dependencies in the virtual environment:
+`(sudo) pip3 install --editable .`
 
-(10. Place the database file in the map named REFERENCE)       perhaps this step should be done later down the line? 
-
-11. Once you've completed your work, deactivate the virtual environment using the following command
+5. You can now use ConFInR in the command line, see [Usage](https://github.com/kjradem/ConFInR/blob/master/README.md#usage) for details on this. After usage you can deactivate your virtual environment with:
 
 `deactivate`
-``
+
 ## Usage
 
 ### Executing ConFInR from the command line
