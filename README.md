@@ -57,6 +57,22 @@ Its predecessor YEET (Yet anothEr mEtagenomics Tool) performs the pre-processing
 
 ## Usage
 
+### Folder structure
+ConFInR's folder structure is shown below, including an example run folder. Run folders are automatically created when running ConFInR to store results and metadata and are named '_RUN\_[date]\_[time]_'.
+```bash
+.
+├── README.md
+├── LICENSE
+├── requirements.txt
+├── confinr.py
+├── setup.py
+├── REFERENCE
+│   └── database.dmnd         < result of confinr-makedb
+└── RUN_date_time             < result of confinr-run
+    ├── matches.m8
+    └── metadata.txt
+```
+
 ### Executing ConFInR from the command line
 After following the installation steps above, specific ConFInR functions can be executed directly from the command line. The commands including descriptions, parameters and code examples are listed below.
 
@@ -91,23 +107,14 @@ Given an input file (.fasta), this function runs DIAMOND in BLASTX mode and stor
 
 Code example: ```$ confinr-run database sequences.fasta --params '--sensitive --matrix PAM250'```
 
-### Folder structure
-ConFInR's folder structure is shown below, including an example run folder. Run folders are automatically created when running ConFInR to store results and metadata and are named '_RUN\_[date]\_[time]_'.
-```bash
-.
-├── README.md
-├── LICENSE
-├── requirements.txt
-├── confinr.py
-├── setup.py
-├── REFERENCE
-│   └── database.dmnd         < result of confinr-makedb
-└── RUN_date_time             < result of confinr-run
-    ├── matches.m8
-    └── metadata.txt
-```
-
 ## Credits
+Our team consists of the following members:
+* [Sjors](https://github.com/Diadoom)
+* [Hidde](https://github.com/HH-Dijkstra)
+* [Daan](https://github.com/DaanJG98)
+* [Pim](https://github.com/PimHoefmans)
+* [Koen](https://github.com/kjradem)
+* [Thijs](https://github.com/thijschanka)
 
 ## License
 This project is licensed under the MIT license, see [LICENSE](https://github.com/kjradem/ConFInR/tree/cl-release/LICENSE) for details.
