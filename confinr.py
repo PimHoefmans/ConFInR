@@ -6,7 +6,7 @@ import pandas as pd
 
 CONFINR_PATH = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 METADATA_FILE = 'metadata.txt'
-RUN_FOLDERS = ['OUTPUT', 'ANNOTATION']
+OUTPUT_FILE = 'matches.m8'
 SEQUENCE_COLUMNS = ['fw_seq', 'rvc_seq']
 
 
@@ -77,7 +77,6 @@ def initialize_run():
     """Initialize a ConFInR run by creating the required folder structure.
 
     Generate a run_id based on the date and time.
-    Create defined run folders inside folder named after run_id.
     :raises OSError: If there is no such file or directory to create folders in.
     :return: Run folder name.
     """
@@ -88,10 +87,6 @@ def initialize_run():
     try:
         if not os.path.exists(run_id_folder):
             os.makedirs(run_id_folder)
-            os.chdir(run_id_folder)
-            for folder in RUN_FOLDERS:
-                os.makedirs(folder)
-            os.chdir('..')
         return run_id
     except OSError:
         raise OSError
@@ -147,7 +142,7 @@ def run_diamond(d: str, q: str, run_id: str, params=None):
     :param run_id: Run folder name.
     :param params: Optional DIAMOND parameter(s), multiple should be surrounded with quotes.
     """
-    o = '/'.join((CONFINR_PATH, run_id, 'OUTPUT/matches.m8'))
+    o = '/'.join((CONFINR_PATH, run_id, OUTPUT_FILE))
     if not os.path.exists(d):
         d = '/'.join((CONFINR_PATH, 'REFERENCE', d))
     command = 'diamond blastx -d ' + d + ' -q ' + q + ' -o ' + o
@@ -170,4 +165,4 @@ def run_confinr(d: str, q: str, params: str):
     run_id = initialize_run()
     run_diamond(d, q, run_id, params)
     write_metadata(q=q, d=d, p=params, run_id=run_id)
-    
+
