@@ -11,12 +11,12 @@ def read_lines(file_path):
         return f.read().splitlines()
 
 
-# TODO: ADD LICENSE IMPORT
 setup(
     name='ConFInR',
     version='0.1',
     description='ConFInR is a Python tool for functional annotation of metagenomics sequences.',
     long_description=read_file('README.md'),
+    license=read_file('LICENSE'),
     author='Koen Rademaker',
     author_email='koenrademaker@outlook.com',
     url='https://github.com/kjradem/ConFInR',
