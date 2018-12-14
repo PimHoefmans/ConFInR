@@ -103,11 +103,8 @@ ConFInR's folder structure is shown below, including an example run folder. Run 
 ├── REFERENCE
 │   └── database.dmnd         < result of confinr-makedb
 └── RUN_date_time             < result of confinr-run
-    ├── metadata.txt
-    ├── ANNOTATION
-    │   └── annotation.txt
-    └── OUTPUT
-        └── matches.m8
+    ├── matches.m8
+    └── metadata.txt
 ```
 
 ## Credits
