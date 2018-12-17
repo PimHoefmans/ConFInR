@@ -9,6 +9,7 @@ from app.web.forms import FastQForm, TSVForm
 from werkzeug.utils import secure_filename
 from app.core.utils.preprocess_utils import allowed_file
 from app.core.preprocessing.parser import preprocess_fastq_files
+from app.core.preprocessing.parser_mp import preprocess_fastq_files_mp
 
 
 last_purge = None
@@ -59,19 +60,19 @@ def preprocessing():
                 renamed_fw_file = 'fw_file.fastq'
                 renamed_rc_file = 'rv_file.fastq'
                 if not os.path.exists('data/'+session_id):
-                    # try:
+                    try:
                         os.makedirs('data/'+session_id)
                         form.forward_file.data.save('data/' + session_id + '/' + renamed_fw_file)
                         form.reverse_file.data.save('data/' + session_id + '/' + renamed_rc_file)
-                        preprocess_fastq_files('data/' + session_id + '/' + renamed_fw_file, 'data/' + session_id + '/' + renamed_rc_file, session_id)
+                        preprocess_fastq_files_mp('data/' + session_id + '/' + renamed_fw_file, 'data/' + session_id + '/' + renamed_rc_file, session_id)
                         return redirect(url_for('web.preprocessing'))
-                    # except Exception:
-                    #     if os.path.exists('data/'+session_id):
-                    #         rmtree('data/'+session_id)
-                    #     session.clear()
-                    #     flash('An error occurred while parsing the input files, please make sure the '
-                    #           'files conform the fastq standard')
-                    #     return redirect(url_for('web.preprocessing'))
+                    except Exception:
+                        if os.path.exists('data/'+session_id):
+                            rmtree('data/'+session_id)
+                        session.clear()
+                        flash('An error occurred while parsing the input files, please make sure the '
+                              'files conform the fastq standard')
+                        return redirect(url_for('web.preprocessing'))
                 else:
                     flash("Files are already uploaded")
                     return redirect(url_for('web.preprocessing'))

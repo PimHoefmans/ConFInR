@@ -11,7 +11,7 @@ class FastQDataframe:
     __uuid = ""
 
     def __init__(self, fw_data: FastQData=None, rvc_data: FastQData=None, fw_items: list=None, fw_indices: list=None,
-                 rvc_items: list=None, rvc_indices: list=None, df_id: str=None):
+                 rvc_items: list=None, rvc_indices: list=None, df_id: str=None, fw_dict=None, rv_dict=None):
         """
         A FastQDataframe can be constructed multiple ways. The most straight forward way is to use FastQData objects,
         But it is also possible to use list items
@@ -31,6 +31,8 @@ class FastQDataframe:
             self.__from_lists(fw_items, fw_indices, rvc_items, rvc_indices)
         elif fw_data and rvc_data:
             self.__from_fastqdata(fw_data, rvc_data)
+        elif fw_dict and rv_dict:
+            self.__from_dict(fw_dict, rv_dict)
         else:
             raise Exception("No input data given, please use either FastQData objects or list objects")
 
@@ -71,6 +73,50 @@ class FastQDataframe:
         rvc_df['rvc_seq'] = rvc_data.get_complement_list()
         rvc_df['rv_seq_score'] = rvc_data.get_q_score_list()
         joined_df = fw_df.join(rvc_df)
+        joined_df['flagged'] = False
+        joined_df['paired_flag'] = False
+        joined_df['fw_a_perc_flag'] = False
+        joined_df['fw_t_perc_flag'] = False
+        joined_df['fw_g_perc_flag'] = False
+        joined_df['fw_c_perc_flag'] = False
+        joined_df['rv_a_perc_flag'] = False
+        joined_df['rv_t_perc_flag'] = False
+        joined_df['rv_g_perc_flag'] = False
+        joined_df['rv_c_perc_flag'] = False
+        joined_df['fw_seq_len_flag'] = False
+        joined_df['rv_seq_len_flag'] = False
+        joined_df['identity_flag'] = False
+        self.__df = joined_df
+
+    def __from_dict(self, fw_data, rv_data):
+        """
+        Create a pandas dataframe from FastQData objects
+        :param fw_data:
+        :param rvc_data:
+        :return:
+        """
+        fw_columns = ['fw_seq', 'fw_seq_score', 'fw_seq_length', 'fw_A_perc', 'fw_T_perc', 'fw_G_perc', 'fw_C_perc',
+                      'fw_Q-score']
+        fw_df = pd.DataFrame(columns=fw_columns, index=fw_data['index'])
+
+        fw_df['fw_seq'] = fw_data['seq']
+        fw_df['fw_seq_score'] = fw_data['qual']
+
+        rv_columns = ['rv_seq', 'rvc_seq', 'rv_seq_score', 'rv_seq_length', 'rv_A_perc', 'rv_T_perc', 'rv_G_perc',
+                       'rv_C_perc', 'rv_Q-score']
+        rv_df = pd.DataFrame(columns=rv_columns, index=rv_data['index'])
+        rv_df['rv_seq'] = rv_data['seq']
+        rv_df['rvc_seq'] = rv_data['comp']
+        rv_df['rv_seq_score'] = rv_data['qual']
+
+        del fw_data
+        del rv_data
+
+        joined_df = fw_df.join(rv_df)
+
+        del fw_df
+        del rv_df
+
         joined_df['flagged'] = False
         joined_df['paired_flag'] = False
         joined_df['fw_a_perc_flag'] = False
