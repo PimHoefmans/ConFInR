@@ -1,3 +1,18 @@
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block scripts %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/custom.css') }}">
+{% endblock %}
+
+
 {% block app_content %}
+    <h2>ConFInR</h2>
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>Convert TSV to FASTA</h4>
+                Omdat het... omdat het... prachtig is!!1
+        </div>
+    </div>
 {% endblock %}
