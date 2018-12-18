@@ -30,6 +30,14 @@ function clear_errors(){
 }
 
 
+function disable_buttons(){
+    $( ".CLASS_NAME").attr("disabled", true);
+}
+
+function enable_buttons(){
+    $( ".CLASS_NAME").attr("disabled", false);
+}
+
 function make_seq_image(){
     clear_errors();
     var min_seq_len = $( "#min_seq_len" ).val()
