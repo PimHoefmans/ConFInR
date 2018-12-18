@@ -29,13 +29,12 @@ function clear_errors(){
 
 }
 
-
 function disable_buttons(){
-    $( ".CLASS_NAME").attr("disabled", true);
+    $( ".action_button").attr("disabled", true);
 }
 
 function enable_buttons(){
-    $( ".CLASS_NAME").attr("disabled", false);
+    $( ".action_button").attr("disabled", false);
 }
 
 function make_seq_image(){
