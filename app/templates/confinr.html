@@ -11,8 +11,17 @@
     <h2>ConFInR</h2>
     <div class="row">
         <div class="col-sm-12">
-            <h4>Convert TSV to FASTA</h4>
-                Omdat het... omdat het... prachtig is!!1
+            <h4>Convert tab-delimited data to FASTA</h4>
+            {% include 'confinr_convert.html' %}
+            <hr>
+
+            <h4>Set up DIAMOND database</h4>
+            {% include 'confinr_makedb.html' %}
+            <hr>
+
+            <h4>Run DIAMOND</h4>
+            {% include 'confinr_run.html' %}
+            <hr>
         </div>
     </div>
 {% endblock %}
