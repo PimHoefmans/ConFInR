@@ -10,20 +10,11 @@ class FastQForm(FlaskForm):
     submit = SubmitField('Upload')
 
 
-class TSVForm(FlaskForm):
-    tsv_file = FileField('Input file:',
+class DiamondInputForm(FlaskForm):
+    tsv_file = FileField('Query file:',
                          validators=[FileRequired(), FileAllowed(['tsv', 'txt', 'fasta', 'gz'], 'Tab-separated data only!')])
-    plebus = SubmitField('Upload')
-
-
-class DatabaseForm(FlaskForm):
-    db_file = FileField('Input file:',
+    # TODO: Text explaining format(s)
+    db_file = FileField('Database file:',
                         validators=[FileRequired(), FileAllowed(['fasta', 'gz'], '(Compressed) FASTA only!')])
-    name = StringField('Database name:', validators=[DataRequired()])
-    spqr = SubmitField('Upload')
-
-
-class DiamondForm(FlaskForm):
-    input_file = FileField(validators=[FileRequired()])
-    # INSERT OTHER FIELDS
+    # TODO: Text explaining format(s)
     submit = SubmitField('Upload')
