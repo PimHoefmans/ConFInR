@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import SubmitField, StringField
-from wtforms.validators import DataRequired
+from wtforms import SubmitField
 
 
 class FastQForm(FlaskForm):
@@ -11,10 +10,12 @@ class FastQForm(FlaskForm):
 
 
 class DiamondInputForm(FlaskForm):
-    tsv_file = FileField('Query file:',
-                         validators=[FileRequired(), FileAllowed(['tsv', 'txt', 'fasta', 'gz'], 'Tab-separated data only!')])
-    # TODO: Text explaining format(s)
-    db_file = FileField('Database file:',
-                        validators=[FileRequired(), FileAllowed(['fasta', 'gz'], '(Compressed) FASTA only!')])
-    # TODO: Text explaining format(s)
+    query_file = FileField('Query file',
+                            validators=[FileRequired(),
+                                        FileAllowed(['tsv', 'txt', 'fasta', 'fastq', 'gz'],
+                                                    'Only tab-separated data or (compressed) FASTA/FASTQ')])
+    db_file = FileField('Database file',
+                        validators=[FileRequired(),
+                                    FileAllowed(['fasta', 'gz', 'dmnd'],
+                                                'Only pre-built DIAMOND database or (compressed) FASTA')])
     submit = SubmitField('Upload')
