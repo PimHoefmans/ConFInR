@@ -2,6 +2,7 @@ from flask import jsonify, request, session, send_file, abort
 import json
 import io
 from app.api import bp
+import dask.dataframe as dd
 from app.core.objects.FastQDataframe import FastQDataframe
 from app.core.utils.to_json import seq_length_to_json, perc_count_to_json,get_paired_percentage_to_json, nucleotide_percentages_to_json
 from datetime import datetime
@@ -16,13 +17,14 @@ def sequence_length():
     """
     try:
         session_id = session['id']
-        fastq_df = FastQDataframe.load_pickle("data/" + session_id + "/pickle.pkl")
+        # fastq_df = FastQDataframe.load_pickle("data/" + session_id + "/pickle.pkl")
+        fastq_df = dd.read_parquet('data/' + session_id + '/parquet/')
         min_seq_len = int(request.form.get('min_seq_len'))
         max_seq_len = int(request.form.get('max_seq_len'))
-        fastq_df.flag_between("fw_seq_length", min_seq_len, max_seq_len, 'fw_seq_len_flag')
-        fastq_df.flag_between("rv_seq_length", min_seq_len, max_seq_len, 'rv_seq_len_flag')
-        fastq_df.flag_any()
-        fastq_df.to_pickle(path='data/' + session_id + '/', filename='pickle')
+        # fastq_df.flag_between("fw_seq_length", min_seq_len, max_seq_len, 'fw_seq_len_flag')
+        # fastq_df.flag_between("rv_seq_length", min_seq_len, max_seq_len, 'rv_seq_len_flag')
+        # fastq_df.flag_any()
+        # fastq_df.to_pickle(path='data/' + session_id + '/', filename='pickle')
         subset = fastq_df.filter_equals(False, ['flagged'])
         response = seq_length_to_json(subset[['fw_seq_length', 'rv_seq_length']])
         return response
