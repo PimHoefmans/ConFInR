@@ -12,15 +12,12 @@
     <h2>ConFInR</h2>
     <div class="row">
         <div class="col-sm-12">
-            <h4>Convert tab-delimited data to FASTA</h4>
-            {% if tsv_form %}
-                {{ wtf.quick_form(tsv_form) }}
-            {% endif %}
-            <hr>
+            <h4>Upload query- and database file</h4>
+            <br>
+            <b>TO DO: Insert description of query- and database file.</b>
 
-            <h4>Set up DIAMOND database</h4>
-            {% if db_form %}
-                {{ wtf.quick_form(db_form) }}
+            {% if db_input_form %}
+                {{ wtf.quick_form(db_input_form) }}
             {% endif %}
             <hr>
 
