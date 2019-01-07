@@ -9,6 +9,12 @@ RUN_FOLDERS = ['OUTPUT', 'ANNOTATION']
 METADATA_FILE = 'metadata.txt'
 
 
+def test(uuid):
+    output_file = 'data/' + uuid + '/diamond/database/' + 'db.dmnd'
+    f = open(output_file, 'w')
+    f.write()
+
+
 def initialize_run():
     """Initialize a ConFInR run by creating the required folder structure.
 
@@ -33,19 +39,17 @@ def initialize_run():
         raise OSError
 
 
-@click.command()
-@click.argument('i')
-@click.argument('d')
-def make_diamond_db(i: str, d: str):
+def make_diamond_db(uuid: str):
     """Run DIAMOND's makedb function in command line.
 
     Create DIAMOND command with input and database to be executed.
     Run DIAMOND command in shell.
-    :param i: Path to input file.
-    :param d: Path to DIAMOND database file.
+    :param uuid: Session id.
     """
-    command = 'diamond makedb --in ' + i + ' -d ' + '/'.join((CONFINR_PATH, 'REFERENCE', d))
-    call(command, shell=True)
+    input_file = 'data/' + uuid + '/diamond/database' + 'db.fasta'
+    database_file = 'data/' + uuid + '/diamond/database' + 'db.dmnd'
+    command = 'diamond makedb --in ' + input_file + ' -d ' + database_file
+    # call(command, shell=True)
 
 
 def run_diamond(d: str, q: str, run_id: str, params=None):
