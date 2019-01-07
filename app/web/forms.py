@@ -11,11 +11,10 @@ class FastQForm(FlaskForm):
 
 class DiamondInputForm(FlaskForm):
     query_file = FileField('Query file',
-                            validators=[FileRequired(),
-                                        FileAllowed(['tsv', 'txt', 'fasta', 'fastq', 'gz'],
-                                                    'Only tab-separated data or (compressed) FASTA/FASTQ')])
+                           validators=[FileRequired(),
+                                       FileAllowed(['tsv', 'fasta', 'fastq', 'gz'],
+                                                   'Only tab-separated data or (compressed) FASTA/FASTQ')])
     db_file = FileField('Database file',
-                        validators=[FileRequired(),
-                                    FileAllowed(['fasta', 'gz', 'dmnd'],
+                        validators=[FileAllowed(['fasta', 'gz', 'dmnd'],
                                                 'Only pre-built DIAMOND database or (compressed) FASTA')])
     submit = SubmitField('Upload')
