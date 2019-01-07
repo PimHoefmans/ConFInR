@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 from app.core.utils.preprocess_utils import allowed_file
 from app.core.preprocessing.parser_mp import preprocess_fastq_files_mp
 from app.core.diamond.parsers import load_input, convert_to_fasta
+from app.core.diamond.runner import make_diamond_db
 
 
 last_purge = None
@@ -85,13 +86,13 @@ def preprocessing():
 
 @bp.route('/confinr', methods=['GET', 'POST'])
 def confinr():
-    db_input_form = DiamondInputForm()
+    diamond_input_form = DiamondInputForm()
     query_upload_completed = False
     db_upload_completed = False
 
-    if db_input_form.validate_on_submit():
-        query_file = secure_filename(db_input_form.query_file.data.filename)
-        db_file = secure_filename(db_input_form.db_file.data.filename)
+    if diamond_input_form.validate_on_submit():
+        query_file = secure_filename(diamond_input_form.query_file.data.filename)
+        db_file = secure_filename(diamond_input_form.db_file.data.filename)
         if allowed_file(query_file) and allowed_file(db_file):
             try:
                 session_id = session['id']
@@ -99,7 +100,7 @@ def confinr():
                 session_id = str(uuid.uuid1())
                 session['id'] = session_id
             finally:
-                for extension in ['.tsv', '.txt', '.fasta', '.fastq', '.gz', '.dmnd']:
+                for extension in ['.tsv', '.fasta', '.fastq', '.gz', '.dmnd']:
                     if extension in query_file:
                         query_storage_file = 'query'+extension
                     if extension in db_file:
@@ -113,7 +114,7 @@ def confinr():
                 if not os.path.exists(query_storage_folder):
                     try:
                         os.makedirs(query_storage_folder)
-                        db_input_form.query_file.data.save(query_storage_file_path)
+                        diamond_input_form.query_file.data.save(query_storage_file_path)
                         if any(ext in query_storage_file for ext in ['.txt', '.tsv']):
                             convert_to_fasta(load_input(query_storage_file_path), session_id)
                         query_upload_completed = True
@@ -130,10 +131,9 @@ def confinr():
                 if not os.path.exists(db_storage_folder):
                     try:
                         os.makedirs(db_storage_folder)
-                        db_input_form.db_file.data.save(db_storage_file_path)
+                        diamond_input_form.db_file.data.save(db_storage_file_path)
                         if any(ext in db_storage_file_path for ext in ['.fasta', '.fastq', '.gz']):
-                            # TODO - Insert function to create DIAMOND database
-                            print('TODO - Insert function to create DIAMOND database')
+                            make_diamond_db(session_id)
                         db_upload_completed = True
                     except Exception:
                         if os.path.exists(db_storage_folder):
@@ -149,12 +149,12 @@ def confinr():
                     flash('Both files have successfully been uploaded and processed.')
                 if query_upload_completed and not db_upload_completed:
                     flash('The query file has successfully been uploaded and processed.'
-                          'An error occurred with the database file.')
+                          '\nAn error occurred with the database file.')
                 if not query_upload_completed and db_upload_completed:
                     flash('The database file has successfully been uploaded and processed.'
-                          'An error occurred with the query file.')
+                          '\nAn error occurred with the query file.')
                 return redirect(url_for('web.confinr'))
-    return render_template('confinr.html', db_input_form=db_input_form)
+    return render_template('confinr.html', db_input_form=diamond_input_form)
 
 
 @bp.route('/about')
