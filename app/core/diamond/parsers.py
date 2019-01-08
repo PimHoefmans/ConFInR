@@ -1,6 +1,5 @@
-import click
 import pandas as pd
-
+import os
 
 SEQUENCE_COLUMNS = ['fw_seq', 'rvc_seq']
 
@@ -27,21 +26,22 @@ def load_input(input_path: str):
         raise ValueError
 
 
-def convert_to_fasta(df: pd.DataFrame, output_path: str):
+def convert_to_fasta(df: pd.DataFrame, uuid: str):
     """Convert tab-delimited data (.TSV) to FASTA format and write to a file.
 
     Include postfixes '/1' (forward sequences) and '/2' (reverse complement sequences) in FASTA header.
     Write formatted data to a file.
     :param df: DataFrame, should contain columns 'fw_seq' and 'rvc_seq' & headers as row indices to extract data from.
-    :param output_path: Path to output file.
+    :param uuid: Unique ID that refers to session ID.
     :raises KeyError: If requested key (e.g. sequence) is absent and can't be loaded.
     :raises ValueError: If an incorrect object type is used.
     :raises FileExistsError: If output_path refers to an existing file.
     """
-    if not os.path.exists(output_path):
+    output_file = 'data/' + uuid + '/diamond/query/' + 'output.fasta'
+    if not os.path.exists(output_file):
         try:
             content = ''
-            with open(output_path, 'w') as f:
+            with open(output_file, 'w') as f:
                 for index, row in df.iterrows():
                     if isinstance(row['fw_seq'], str):
                         content += '>' + index + ' /1\n' + row['fw_seq'] + '\n'
@@ -54,15 +54,3 @@ def convert_to_fasta(df: pd.DataFrame, output_path: str):
             raise ValueError
     else:
         raise FileExistsError
-
-
-@click.command()
-@click.argument('i')
-@click.option('--o', default='output.fasta', help='Path for output file')
-def convert(i: str, o: str):
-    """Convert tab-delimited data (in .TSV file) to FASTA format (in .FASTA file).
-
-    :param i: Path to input file.
-    :param o: Optional path for output file.
-    """
-    convert_to_fasta(load_input(i), o)
