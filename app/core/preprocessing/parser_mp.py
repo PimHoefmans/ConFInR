@@ -1,28 +1,45 @@
+"""
+Multiprocessed parser for fastq files
+"""
+
+import multiprocessing as mp
 import os
 import re
+
+import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-import dask.dataframe as dd
-import multiprocessing as mp
-from app.core.objects.FastQData import FastQData
-from app.core.objects.FastQDataframe import FastQDataframe
+
 from app.core.utils.preprocess_utils import get_reverse_complement
-from app.core.preprocessing.calculations import get_nucleotide_percentages, get_paired_reads, get_sequence_length
 
-
+# regex pattern for the nucleotide sequence
 SEQUENCE_PATTERN = re.compile("^[ATGCNYPatgcnyp]+")
+# regex pattern for the sequence header
 HEADER_PATTERN = re.compile("^@.*HWI.+(:\d+){3,10}.+")
+# regex pattern for the + sign between the sequence and quality score
 PLUS_PATTERN = re.compile("^\+")
 
 
 def preprocess_fastq_files_mp(fw_file, rv_file, uuid: str):
+    """
+
+    :param fw_file: forward fastq file
+    :param rv_file: reverse fastq file
+    :param uuid: unique identifier saved in the flask session
+    :return:
+    """
     fastq_df = initialize_dataframe(fw_file, rv_file)
-    extend_dataframe(fastq_df)
-    # fastq_df.to_pickle(path='data/' + uuid + '/', filename='pickle')
-    fastq_df.to_parquet('data/'+uuid+'/parquet/')
+    fastq_df = extend_dataframe(fastq_df)
+    fastq_df.to_parquet('data/' + uuid + '/parquet/', engine="pyarrow")
 
 
 def initialize_dataframe(fw_file, rv_file):
+    """
+    process the forward and reverse fastq files by making workers process chunks of the files.
+    :param fw_file: forward fastq file
+    :param rv_file: reverse fastq file
+    :return: dask dataframe
+    """
     pool_fw = mp.Pool(mp.cpu_count() // 2)
     pool_rv = mp.Pool(mp.cpu_count() // 2)
     jobs_fw = []
@@ -39,16 +56,16 @@ def initialize_dataframe(fw_file, rv_file):
 
     for r in jobs_fw:
         if r.get():
-            fw_result['index'] += r.get()[0]
-            fw_result['seq'] += r.get()[1]
-            fw_result['qual'] += r.get()[2]
-            fw_result['comp'] += r.get()[3]
+            fw_result['index'] += r.get()[0]  # index / sequence header
+            fw_result['seq'] += r.get()[1]  # sequence
+            fw_result['qual'] += r.get()[2]  # quality score
+            fw_result['comp'] += r.get()[3]  # complement sequence
     for r in jobs_rv:
         if r.get():
-            rv_result['index'] += r.get()[0]
-            rv_result['seq'] += r.get()[1]
-            rv_result['qual'] += r.get()[2]
-            rv_result['comp'] += r.get()[3]
+            rv_result['index'] += r.get()[0]  # index / sequence header
+            rv_result['seq'] += r.get()[1]  # sequence
+            rv_result['qual'] += r.get()[2]  # quality score
+            rv_result['comp'] += r.get()[3]  # complement sequence
 
     del jobs_fw, jobs_rv
 
@@ -60,52 +77,79 @@ def initialize_dataframe(fw_file, rv_file):
 
 
 def extend_dataframe(fastq_df):
+    """
+    extend the dataframe by calculating aditional information
+    :param fastq_df:
+    :return: extended dataframe
+    """
+    # check if sequences are paired
     fastq_df['paired'] = fastq_df[['fw_seq', 'rv_seq']].notnull().all(axis=1)
+    # get the length of the forward sequence
     fastq_df['fw_seq_length'] = fastq_df['fw_seq'].str.len()
+    # fill nan values to prevent parquet schema difference
+    fastq_df['fw_seq_length'] = fastq_df['fw_seq_length'].fillna(0)
+    # get the length of the reverse sequence
     fastq_df['rv_seq_length'] = fastq_df['rv_seq'].str.len()
-
+    # fill nan values to prevent parquet schema difference
+    fastq_df['rv_seq_length'] = fastq_df['rv_seq_length'].fillna(0)
+    # necessary because fillna creates floats but the normal length are int
+    fastq_df['fw_seq_length'] = fastq_df['fw_seq_length'].astype(int)
+    # necessary because fillna creates floats but the normal length are int
+    fastq_df['rv_seq_length'] = fastq_df['rv_seq_length'].astype(int)
     fw_a = np.around(
-        (fastq_df['fw_seq'].str.count('A').values.compute() / fastq_df['fw_seq_length'].values.compute() * 100).astype(np.double),
+        (fastq_df['fw_seq'].str.count('A').values.compute() / fastq_df['fw_seq_length'].values.compute() * 100).astype(
+            np.double),
         4)
     fw_t = np.around(
-        (fastq_df['fw_seq'].str.count('T').values.compute() / fastq_df['fw_seq_length'].values.compute() * 100).astype(np.double),
+        (fastq_df['fw_seq'].str.count('T').values.compute() / fastq_df['fw_seq_length'].values.compute() * 100).astype(
+            np.double),
         4)
     fw_g = np.around(
-        (fastq_df['fw_seq'].str.count('G').values.compute() / fastq_df['fw_seq_length'].values.compute() * 100).astype(np.double),
+        (fastq_df['fw_seq'].str.count('G').values.compute() / fastq_df['fw_seq_length'].values.compute() * 100).astype(
+            np.double),
         4)
     fw_c = np.around(
-        (fastq_df['fw_seq'].str.count('C').values.compute() / fastq_df['fw_seq_length'].values.compute() * 100).astype(np.double),
+        (fastq_df['fw_seq'].str.count('C').values.compute() / fastq_df['fw_seq_length'].values.compute() * 100).astype(
+            np.double),
         4)
     temp_fw_df = pd.DataFrame({"fw_A_perc": fw_a, "fw_T_perc": fw_t, "fw_G_perc": fw_g, "fw_C_perc": fw_c},
                               index=fastq_df.index.compute())
-    fastq_df = fastq_df.join(temp_fw_df)
+    fastq_df = fastq_df.merge(temp_fw_df)
     del fw_a, fw_t, fw_g, fw_c, temp_fw_df
 
     rv_a = np.around(
-        (fastq_df['rv_seq'].str.count('A').values.compute() / fastq_df['rv_seq_length'].values.compute() * 100).astype(np.double),
+        (fastq_df['rv_seq'].str.count('A').values.compute() / fastq_df['rv_seq_length'].values.compute() * 100).astype(
+            np.double),
         4)
     rv_t = np.around(
-        (fastq_df['rv_seq'].str.count('T').values.compute() / fastq_df['rv_seq_length'].values.compute() * 100).astype(np.double),
+        (fastq_df['rv_seq'].str.count('T').values.compute() / fastq_df['rv_seq_length'].values.compute() * 100).astype(
+            np.double),
         4)
     rv_g = np.around(
-        (fastq_df['rv_seq'].str.count('G').values.compute() / fastq_df['rv_seq_length'].values.compute() * 100).astype(np.double),
+        (fastq_df['rv_seq'].str.count('G').values.compute() / fastq_df['rv_seq_length'].values.compute() * 100).astype(
+            np.double),
         4)
     rv_c = np.around(
-        (fastq_df['rv_seq'].str.count('C').values.compute() / fastq_df['rv_seq_length'].values.compute() * 100).astype(np.double),
+        (fastq_df['rv_seq'].str.count('C').values.compute() / fastq_df['rv_seq_length'].values.compute() * 100).astype(
+            np.double),
         4)
     temp_rv_df = pd.DataFrame({"rv_A_perc": rv_a, "rv_T_perc": rv_t, "rv_G_perc": rv_g, "rv_C_perc": rv_c},
                               index=fastq_df.index.compute())
-    fastq_df = fastq_df.join(temp_rv_df)
+    fastq_df = fastq_df.merge(temp_rv_df)
     del rv_a, rv_t, rv_g, rv_c, temp_rv_df
 
     return fastq_df
-    # get_paired_reads(fastq_df)
-    # get_nucleotide_percentages(fastq_df, "fw_")
-    # get_nucleotide_percentages(fastq_df, "rv_")
-    # get_sequence_length(fastq_df)
 
 
 def process_fastq_chunk(filename, chunk_start, chunk_size, is_rev: bool):
+    """
+    Parse the items in a chunk a fastq file
+    :param filename: fastq file
+    :param chunk_start: start of the current chunk of the file
+    :param chunk_size: size of the current chunk
+    :param is_rev: boolean to check if the current chunk come from a reverse sequence
+    :return: 4 lists containing the items from the chunk of the fastq file
+    """
     with open(filename, 'r') as f:
         f.seek(chunk_start)
         lines = f.read(chunk_size).splitlines()
@@ -132,7 +176,13 @@ def process_fastq_chunk(filename, chunk_start, chunk_size, is_rev: bool):
         return index_list, seq_list, q_score_list, complement_list
 
 
-def chunkify(filename, size=1024*1024):
+def chunkify(filename, size=1024 * 1024):
+    """
+    devide a file in multiple chunks of a certain size
+    :param filename: file to chunkify
+    :param size: size of the chunks
+    :return: iterator containing the chunkstart and size
+    """
     fileEnd = os.path.getsize(filename)
     with open(filename, 'rb') as f:
         chunkEnd = f.tell()
@@ -147,7 +197,13 @@ def chunkify(filename, size=1024*1024):
 
 
 def create_dask_dataframe(fw_data, rv_data):
-    fw_columns = ['fw_seq', 'fw_seq_score', 'fw_seq_length', 'fw_A_perc', 'fw_T_perc', 'fw_G_perc', 'fw_C_perc']
+    """
+    Creates the dask dataframe
+    :param fw_data: dictionary containing fastq items
+    :param rv_data: dictionary containing fastq items
+    :return: dask dataframe
+    """
+    fw_columns = ['fw_seq', 'fw_seq_score', 'fw_seq_length']
     fw_df = pd.DataFrame(columns=fw_columns, index=fw_data['index'])
 
     fw_df['fw_seq'] = fw_data['seq']
@@ -155,9 +211,7 @@ def create_dask_dataframe(fw_data, rv_data):
     del fw_data
     ddf = dd.from_pandas(fw_df, npartitions=4)
     del fw_df
-
-    rv_columns = ['rv_seq', 'rvc_seq', 'rv_seq_score', 'rv_seq_length', 'rv_A_perc', 'rv_T_perc', 'rv_G_perc',
-                  'rv_C_perc']
+    rv_columns = ['rv_seq', 'rvc_seq', 'rv_seq_score', 'rv_seq_length']
     rv_df = pd.DataFrame(columns=rv_columns, index=rv_data['index'])
     rv_df['rv_seq'] = rv_data['seq']
     rv_df['rvc_seq'] = rv_data['comp']

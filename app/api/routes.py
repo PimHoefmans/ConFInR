@@ -1,11 +1,14 @@
-from flask import jsonify, request, session, send_file, abort
-import json
 import io
-from app.api import bp
+import json
+import logging
+
 import dask.dataframe as dd
+from flask import jsonify, request, session, send_file, abort
+
+from app.api import bp
 from app.core.objects.FastQDataframe import FastQDataframe
-from app.core.utils.to_json import seq_length_to_json, perc_count_to_json,get_paired_percentage_to_json, nucleotide_percentages_to_json
-from datetime import datetime
+from app.core.utils.to_json import seq_length_to_json, perc_count_to_json, \
+    get_paired_percentage_to_json, nucleotide_percentages_to_json
 
 
 # METAGEN-55 | METAGEN-70
@@ -17,20 +20,28 @@ def sequence_length():
     """
     try:
         session_id = session['id']
-        # fastq_df = FastQDataframe.load_pickle("data/" + session_id + "/pickle.pkl")
-        fastq_df = dd.read_parquet('data/' + session_id + '/parquet/')
+        fastq_df = dd.read_parquet('data/' + session_id + '/parquet/', engine="pyarrow")
         min_seq_len = int(request.form.get('min_seq_len'))
         max_seq_len = int(request.form.get('max_seq_len'))
-        # fastq_df.flag_between("fw_seq_length", min_seq_len, max_seq_len, 'fw_seq_len_flag')
-        # fastq_df.flag_between("rv_seq_length", min_seq_len, max_seq_len, 'rv_seq_len_flag')
-        # fastq_df.flag_any()
-        # fastq_df.to_pickle(path='data/' + session_id + '/', filename='pickle')
-        subset = fastq_df.filter_equals(False, ['flagged'])
-        response = seq_length_to_json(subset[['fw_seq_length', 'rv_seq_length']])
+        fastq_df['fw_seq_len_flag'] = fastq_df['fw_seq_length'].apply(
+            lambda row: False if min_seq_len <= row <= max_seq_len else True, meta=(bool))
+        fastq_df['rv_seq_len_flag'] = fastq_df['rv_seq_length'].apply(
+            lambda row: False if min_seq_len <= row <= max_seq_len else True, meta=(bool))
+        fastq_df['flagged'] = fastq_df[['paired_flag', 'fw_a_perc_flag', 'fw_t_perc_flag', 'fw_g_perc_flag',
+                                        'fw_c_perc_flag', 'rv_a_perc_flag', 'rv_t_perc_flag', 'rv_g_perc_flag',
+                                        'rv_c_perc_flag', 'fw_seq_len_flag', 'rv_seq_len_flag', 'identity_flag']].any(
+            axis=1)
+
+        fastq_df.to_parquet('data/' + session_id + '/parquet/', engine="pyarrow", write_index=True)
+
+        subset = fastq_df[fastq_df['flagged'] == False]
+        response = seq_length_to_json(subset[['fw_seq_length', 'rv_seq_length']].compute())
         return response
-    except KeyError:
+    except KeyError as e:
+        logging.exception(e)
         abort(400)
-    except Exception:
+    except Exception as e:
+        logging.exception(e)
         abort(500)
 
 
@@ -44,7 +55,7 @@ def nucleotide():
     """
     try:
         session_id = session['id']
-        fastq_df = FastQDataframe.load_pickle("data/" + session_id + "/pickle.pkl")
+        fastq_df = dd.read_parquet('data/' + session_id + '/parquet/', engine="pyarrow")
         min_A_perc = int(request.form.get('minAValue'))
         min_T_perc = int(request.form.get('minTValue'))
         min_G_perc = int(request.form.get('minGValue'))
@@ -54,27 +65,41 @@ def nucleotide():
         max_G_perc = int(request.form.get('maxGValue'))
         max_C_perc = int(request.form.get('maxCValue'))
         bin_size = int(request.form.get('BinSize'))
+        print(fastq_df.columns)
+        fastq_df['fw_A_flag'] = fastq_df['fw_A_perc'].apply(
+            lambda row: False if min_A_perc <= row <= max_A_perc else True, meta=(bool))
+        fastq_df['fw_T_flag'] = fastq_df['fw_T_perc'].apply(
+            lambda row: False if min_T_perc <= row <= max_T_perc else True, meta=(bool))
+        fastq_df['fw_G_flag'] = fastq_df['fw_G_perc'].apply(
+            lambda row: False if min_G_perc <= row <= max_G_perc else True, meta=(bool))
+        fastq_df['fw_C_flag'] = fastq_df['fw_C_perc'].apply(
+            lambda row: False if min_C_perc <= row <= max_C_perc else True, meta=(bool))
+        fastq_df['rv_A_flag'] = fastq_df['rv_A_perc'].apply(
+            lambda row: False if min_A_perc <= row <= max_A_perc else True, meta=(bool))
+        fastq_df['rv_T_flag'] = fastq_df['rv_T_perc'].apply(
+            lambda row: False if min_T_perc <= row <= max_T_perc else True, meta=(bool))
+        fastq_df['rv_G_flag'] = fastq_df['rv_G_perc'].apply(
+            lambda row: False if min_G_perc <= row <= max_G_perc else True, meta=(bool))
+        fastq_df['rv_C_flag'] = fastq_df['rv_C_perc'].apply(
+            lambda row: False if min_C_perc <= row <= max_C_perc else True, meta=(bool))
 
-        fastq_df.flag_between('fw_A_perc', min_A_perc, max_A_perc, 'fw_a_perc_flag')
-        fastq_df.flag_between('fw_T_perc', min_T_perc, max_T_perc, 'fw_t_perc_flag')
-        fastq_df.flag_between('fw_G_perc', min_G_perc, max_G_perc, 'fw_g_perc_flag')
-        fastq_df.flag_between('fw_C_perc', min_C_perc, max_C_perc, 'fw_c_perc_flag')
-
-        fastq_df.flag_between('rv_A_perc', min_A_perc, max_A_perc, 'rv_a_perc_flag')
-        fastq_df.flag_between('rv_T_perc', min_T_perc, max_T_perc, 'rv_t_perc_flag')
-        fastq_df.flag_between('rv_G_perc', min_G_perc, max_G_perc, 'rv_c_perc_flag')
-        fastq_df.flag_between('rv_C_perc', min_C_perc, max_C_perc, 'rv_g_perc_flag')
-        fastq_df.flag_any()
-        subset = fastq_df.filter_equals(False, ['flagged'])
-        fastq_df.to_pickle(path='data/' + session_id + '/', filename='pickle')
-
-        fw_json = nucleotide_percentages_to_json(subset[['fw_A_perc', 'fw_T_perc', 'fw_C_perc', 'fw_G_perc']], bin_size, "fw_")
-        rv_json = nucleotide_percentages_to_json(subset[['rv_A_perc', 'rv_T_perc', 'rv_C_perc', 'rv_G_perc']], bin_size, "rv_")
+        fastq_df['flagged'] = fastq_df[['paired_flag', 'fw_a_perc_flag', 'fw_t_perc_flag', 'fw_g_perc_flag',
+                                        'fw_c_perc_flag', 'rv_a_perc_flag', 'rv_t_perc_flag', 'rv_g_perc_flag',
+                                        'rv_c_perc_flag', 'fw_seq_len_flag', 'rv_seq_len_flag', 'identity_flag']].any(
+            axis=1)
+        fastq_df.to_parquet('data/' + session_id + '/parquet/', engine="pyarrow", write_index=True)
+        subset = fastq_df[fastq_df['flagged'] == False]
+        fw_json = nucleotide_percentages_to_json(subset[['fw_A_perc', 'fw_T_perc', 'fw_C_perc', 'fw_G_perc']].compute(),
+                                                 bin_size, "fw_")
+        rv_json = nucleotide_percentages_to_json(subset[['rv_A_perc', 'rv_T_perc', 'rv_C_perc', 'rv_G_perc']].compute(),
+                                                 bin_size, "rv_")
         response = json.dumps({"fw_json": fw_json, "rvc_json": rv_json})
         return response
-    except KeyError:
+    except KeyError as e:
+        logging.exception(e)
         abort(400)
-    except Exception:
+    except Exception as e:
+        logging.exception(e)
         abort(500)
 
 
@@ -90,9 +115,11 @@ def quality():
         fastq_df = FastQDataframe.load_pickle("data/" + session_id + "/pickle.pkl")
         response = request.form.get('qValue')
         return jsonify(response)
-    except KeyError:
+    except KeyError as e:
+        logging.error(e)
         abort(400)
-    except Exception:
+    except Exception as e:
+        logging.error(e)
         abort(500)
 
 
@@ -106,15 +133,22 @@ def paired():
     try:
         session_id = session['id']
         filter_paired = bool(request.form.get('FilterPaired'))
-        fastq_df = FastQDataframe.load_pickle("data/" + session_id + "/pickle.pkl")
-        fastq_df.flag_equals('paired', filter_paired, 'paired_flag')
-        fastq_df.flag_any()
-        fastq_df.to_pickle(path='data/' + session_id + '/', filename='pickle')
-        response = get_paired_percentage_to_json(fastq_df.get_dataframe())
+
+        fastq_df = dd.read_parquet('data/' + session_id + '/parquet/', engine="pyarrow")
+        fastq_df['paired_flag'] = fastq_df['paired'].apply(lambda row: False if row == True else True, meta=(bool))
+        fastq_df['flagged'] = fastq_df[['paired_flag', 'fw_a_perc_flag', 'fw_t_perc_flag', 'fw_g_perc_flag',
+                                        'fw_c_perc_flag', 'rv_a_perc_flag', 'rv_t_perc_flag', 'rv_g_perc_flag',
+                                        'rv_c_perc_flag', 'fw_seq_len_flag', 'rv_seq_len_flag', 'identity_flag']].any(
+            axis=1)
+        fastq_df.to_parquet('data/' + session_id + '/parquet/', engine="pyarrow", write_index=True)
+        response = get_paired_percentage_to_json(fastq_df)
         return response
-    except KeyError:
+
+    except KeyError as e:
+        logging.exception(e)
         abort(400)
-    except Exception:
+    except Exception as e:
+        logging.exception(e)
         abort(500)
 
 
@@ -155,7 +189,7 @@ def export_tsv():
 
     try:
         session_id = session['id']
-        fastq_df = FastQDataframe.load_pickle("data/"+ session_id + "/pickle.pkl").get_dataframe()
+        fastq_df = FastQDataframe.load_pickle("data/" + session_id + "/pickle.pkl").get_dataframe()
 
         min_seq_len = request.args.get('minSL', 0, int)
         max_seq_len = request.args.get('maxSL', 10000, int)
@@ -171,12 +205,16 @@ def export_tsv():
         paired_read_percentage = request.args.get('pairedRP', 0, int)
 
         buffer = io.StringIO()
-        buffer.write("#min_seq_len:"+str(min_seq_len)+" | max_seq_len:"+str(max_seq_len)+" | filter_paired:"+str(filter_paired)+
-                     " | min_A_perc:"+str(minA)+" | max_A_perc:"+str(maxA)+" | min_T_perc:"+str(minT)+" | max_T_perc:"+str(maxT)+
-                     " | min_G_perc:"+str(minG)+" | max_G_perc:"+str(maxG)+" | min_C_perc:"+str(minC)+" | max_C_perc:"
-                     + str(maxC)+" | paired_read_percentages:"+str(paired_read_percentage)
-                     + "\n#column flagged; True means it's filtered, False means it's a good sequence\n")
-        fastq_df.drop(['paired_flag', 'fw_a_perc_flag', 'fw_t_perc_flag','fw_g_perc_flag', 'fw_c_perc_flag',
+        buffer.write(
+            "#min_seq_len:" + str(min_seq_len) + " | max_seq_len:" + str(max_seq_len) + " | filter_paired:" + str(
+                filter_paired) +
+            " | min_A_perc:" + str(minA) + " | max_A_perc:" + str(maxA) + " | min_T_perc:" + str(
+                minT) + " | max_T_perc:" + str(maxT) +
+            " | min_G_perc:" + str(minG) + " | max_G_perc:" + str(maxG) + " | min_C_perc:" + str(
+                minC) + " | max_C_perc:"
+            + str(maxC) + " | paired_read_percentages:" + str(paired_read_percentage)
+            + "\n#column flagged; True means it's filtered, False means it's a good sequence\n")
+        fastq_df.drop(['paired_flag', 'fw_a_perc_flag', 'fw_t_perc_flag', 'fw_g_perc_flag', 'fw_c_perc_flag',
                        'rv_a_perc_flag', 'rv_t_perc_flag', 'rv_g_perc_flag', 'rv_c_perc_flag', 'fw_seq_len_flag',
                        'rv_seq_len_flag', 'identity_flag'], axis=1).to_csv(buffer, sep='\t', index=True, header=True)
 
@@ -192,4 +230,3 @@ def export_tsv():
         abort(400)
     except Exception:
         abort(500)
-

@@ -27,15 +27,14 @@ def perc_count_to_json(df):
 
 def get_paired_percentage_to_json(df):
     json_paired_data = []
-    paired_seqs = df.groupby(["paired"]).size()
-    if paired_seqs.count() < 2:
+    values = df['paired'].value_counts().compute()
+    if len(values) < 2:
         json_paired_data.append({"name": "True", "y": 100})
         json_paired_data.append({"name": "False", "y": 0})
         return json.dumps(json_paired_data)
     else:
-        paired_seq_number = paired_seqs.get_values()
-        true_values = paired_seq_number[1]
-        false_values = paired_seq_number[0]
+        true_values = values[1]
+        false_values = values[0]
         total = true_values + false_values
         true_values_percentage = round((true_values/total)*100, 3)
         false_values_percentage = round((false_values/total)*100, 3)

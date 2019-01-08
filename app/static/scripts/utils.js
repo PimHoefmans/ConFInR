@@ -1,3 +1,7 @@
+/*
+ * HEADER
+ * IM THE OWNER
+ */
 function download_tsv(){
     var minSL = $( "#min_seq_len" ).val();
     var maxSL = $( "#max_seq_len" ).val();
@@ -39,8 +43,8 @@ function enable_buttons(){
 
 function make_seq_image(){
     clear_errors();
-    var min_seq_len = $( "#min_seq_len" ).val()
-    var max_seq_len = $( "#max_seq_len" ).val()
+    var min_seq_len = $( "#min_seq_len" ).val();
+    var max_seq_len = $( "#max_seq_len" ).val();
 
     // if (checkInp([min_seq_len, max_seq_len])){
     $.ajax({
@@ -67,7 +71,7 @@ function make_seq_image(){
 
 function make_paired_image(){
     clear_errors();
-    var filter_paired = $( "#checkPaired").is(":checked")
+    var filter_paired = $( "#checkPaired").is(":checked");
     $.ajax({
         type: "POST",
         url: "http://127.0.0.1:5000/api/paired",
@@ -85,22 +89,22 @@ function make_paired_image(){
         },
         success: function(response){
             $( "#pairsImage" ).css("height","370px");
-            visualizePairedReads(JSON.parse(response))
+            visualizePairedReads(JSON.parse(response));
         }
     });
 }
 
 function make_nucleotide_image(){
     clear_errors();
-    var min_A_value = $( "#min_A_value" ).val()
-    var min_T_value = $( "#min_T_value" ).val()
-    var min_G_value = $( "#min_G_value" ).val()
-    var min_C_value = $( "#min_C_value" ).val()
-    var max_A_value = $( "#max_A_value" ).val()
-    var max_T_value = $( "#max_T_value" ).val()
-    var max_G_value = $( "#max_G_value" ).val()
-    var max_C_value = $( "#max_C_value" ).val()
-    var bin_size = $( "#nucleotide_bin_size" ).val()
+    var min_A_value = $( "#min_A_value" ).val();
+    var min_T_value = $( "#min_T_value" ).val();
+    var min_G_value = $( "#min_G_value" ).val();
+    var min_C_value = $( "#min_C_value" ).val();
+    var max_A_value = $( "#max_A_value" ).val();
+    var max_T_value = $( "#max_T_value" ).val();
+    var max_G_value = $( "#max_G_value" ).val();
+    var max_C_value = $( "#max_C_value" ).val();
+    var bin_size = $( "#nucleotide_bin_size" ).val();
 
     $.ajax({
         type: "POST",
