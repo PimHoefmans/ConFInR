@@ -175,3 +175,8 @@ function export_tsv_file(){
     })
     }
 */
+
+function run_diamond(){
+    var elems = document.getElementById("run-diamond-form").elements;
+    console.log(elems);
+}
