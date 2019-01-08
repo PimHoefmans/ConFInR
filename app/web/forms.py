@@ -1,6 +1,9 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
-from wtforms import SubmitField
+from wtforms import SubmitField, SelectField
+from wtforms.validators import Optional
+
+db_none_chosen = 'None'
 
 
 class FastQForm(FlaskForm):
@@ -15,6 +18,11 @@ class DiamondInputForm(FlaskForm):
                                        FileAllowed(['tsv', 'fasta', 'fastq', 'gz'],
                                                    'Only tab-separated data or (compressed) FASTA/FASTQ')])
     db_file = FileField('Database file',
-                        validators=[FileAllowed(['fasta', 'gz', 'dmnd'],
+                        validators=[Optional(),
+                                    FileAllowed(['fasta', 'gz', 'dmnd'],
                                                 'Only pre-built DIAMOND database or (compressed) FASTA')])
+    db_choice = SelectField('Existing database',
+                            choices=[(db_none_chosen, 'None'), ('nr', 'NR database')],
+                            default='None'
+                            )
     submit = SubmitField('Upload')
