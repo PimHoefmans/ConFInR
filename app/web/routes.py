@@ -93,6 +93,7 @@ def confinr():
     form = DiamondForm
     return render_template('confinr_template.html')
 
+
 bp.route
 
 

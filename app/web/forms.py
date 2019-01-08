@@ -17,7 +17,6 @@ class TSVForm(FlaskForm):
 class DiamondForm(FlaskForm):
     matrix = [('BLOSUM45','BLOSUM45'),('BLOSUM50','BLOSUM50'), ('BLOSUM62','BLOSUM62'), ('BLOSUM80','BLOSUM80'),('BLOSUM90','BLOSUM90'), ('PAM250','PAM250'), ('PAM70','PAM70'), ('PAM30','PAM30')]
     outfmt = [('0','BLAST pairwise format'),('5','BLAST XML format'), ('6','BLAST tabular format'), ('100','Diamond Alignment Archive (DAA) format'), ('101','SAM format'), ('102','Taxonomic classification'), ('103','PAF format')]
-
     sensitivity = RadioField('Sensitivity', choices = [('','No extra sensitivity'),('sensitive ','Sensitive'),('more-sensitive ','More sensitive')])    
     frameshift = IntegerField("Frameshift", "Please enter the penalty for a frameshift")
     gapopen = IntegerField("Gap Open Penalty", "Please enter the penalty when opening a gap")
