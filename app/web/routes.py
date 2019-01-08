@@ -5,7 +5,7 @@ import uuid
 from shutil import rmtree
 from flask import render_template, redirect, url_for, session, request, flash
 from app.web import bp
-from app.web.forms import FastQForm, TSVForm, DiamondDBForm, RunDiamondForm
+from app.web.forms import FastQForm, TSVForm, DiamondDBForm, RunDiamondForm, DiamondForm
 from werkzeug.utils import secure_filename
 from app.core.utils.preprocess_utils import allowed_file
 from app.core.preprocessing.parser import preprocess_fastq_files
@@ -90,8 +90,10 @@ def confinr():
         # if allowed_file(tsv_file):
         # save file in right folder
         # redirect(url_for('web.confinr'))
+    form = DiamondForm
+    return render_template('confinr_template.html')
 
-    return render_template('confinr.html')
+bp.route
 
 
 @bp.route('/about')
