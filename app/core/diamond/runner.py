@@ -9,12 +9,6 @@ RUN_FOLDERS = ['OUTPUT', 'ANNOTATION']
 METADATA_FILE = 'metadata.txt'
 
 
-def test(uuid):
-    output_file = 'data/' + uuid + '/diamond/database/' + 'db.dmnd'
-    f = open(output_file, 'w')
-    f.write()
-
-
 def initialize_run():
     """Initialize a ConFInR run by creating the required folder structure.
 
@@ -49,7 +43,7 @@ def make_diamond_db(uuid: str):
     input_file = 'data/' + uuid + '/diamond/database' + 'db.fasta'
     database_file = 'data/' + uuid + '/diamond/database' + 'db.dmnd'
     command = 'diamond makedb --in ' + input_file + ' -d ' + database_file
-    # call(command, shell=True)
+    call(command, shell=True)
 
 
 def run_diamond(d: str, q: str, run_id: str, params=None):
