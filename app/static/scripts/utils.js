@@ -2,6 +2,7 @@
  * HEADER
  * IM THE OWNER
  */
+
 function download_tsv(){
     var minSL = $( "#min_seq_len" ).val();
     var maxSL = $( "#max_seq_len" ).val();
@@ -161,21 +162,3 @@ function make_identity_image(){
         }
     });
 }
-/* Export TSV functie via javascript
-function export_tsv_file(){
-    var posting = $.get('http://127.0.0.1:5000/api/export_tsv');
-    posting.done(function(response){
-        console.log(response)
-        var encodeUri = encodeURI(response);
-        var link = document.createElement("a");
-        link.href = 'data:text/tsv;charset=utf-8,' + encodeUri
-        link.target = '_blank'
-        link.download = 'export_data_JS.tsv'
-        document.body.appendChild(link);
-
-        link.click();
-        document.body.removeChild(link);
-
-    })
-    }
-*/
