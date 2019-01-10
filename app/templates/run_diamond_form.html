@@ -1,9 +1,10 @@
+<p id="diamond_error" class="image_error"></p>
 <form id="run-diamond-form">
     <div class="form-group">
-        <label for="fg1">Number of hits:</label>
-        <input type="number" class="form-control" placeholder="1">
+        <label for="fg1">Maximum number of target sequences per query:</label>
+        <input type="number" id="max-target-seqs" class="form-control" placeholder="25">
         <label for="fg1">E-Value:</label>
-        <input type="number" class="form-control" placeholder="0.01">
+        <input type="number" id="evalue" step="any" formnovalidate class="form-control" placeholder="0.01">
     </div>
 
     <p>
@@ -11,6 +12,7 @@
             Advanced Parameters
         </a>
         <button type="button" onclick="run_diamond()" class="btn btn-danger">Run DIAMOND</button>
+        <button type="button" onclick="download_diamond()" class="btn btn-succes" disabled>Download output</button>
     </p>
 
     <div class="row">
@@ -20,32 +22,36 @@
                     <div class="form-group">
                         <p>
                             <label for="fg2">Sensitivity:</label><br>
-                            <input type="radio" id = "no-sensitive" class="form-check-input" name="sensitivity" id="optionsRadios1" value=""
+                            <input type="radio" id="no-sensitive" class="form-check-input" name="sensitivity"
+                                   id="optionsRadios1" value=""
                                    checked> No extra sensitivity<br>
-                            <input type="radio" id = "sensitive" class="form-check-input" name="sensitivity" id="optionsRadios2"
+                            <input type="radio" id="sensitive" class="form-check-input" name="sensitivity"
+                                   id="optionsRadios2"
                                    value="sensitive"> Sensitive<br>
-                            <input type="radio" id = "more-sensitive" class="form-check-input" name="sensitivity" id="optionsRadios3"
+                            <input type="radio" id="more-sensitive" class="form-check-input" name="sensitivity"
+                                   id="optionsRadios3"
                                    value="more-sensitive"> More sensitive<br>
                         </p>
                         <p>
                             <label for="fg2">Frameshift:</label>
-                            <input type="number" id = "frameshift" class="form-control"
+                            <input type="number" id="frameshift" class="form-control"
                                    placeholder="Please enter the penalty for a frameshift">
                         </p>
                         <p>
                             <label for="fg2">Gap Open:</label>
-                            <input type="number" id = "gapopen" class="form-control"
+                            <input type="number" id="gapopen" class="form-control"
                                    placeholder="Please enter the penalty for opening a gap">
                         </p>
                         <p>
                             <label for="fg2">Gap Extend:</label>
-                            <input type="number" id = "gapextend" class="form-control"
+                            <input type="number" id="gapextend" class="form-control"
                                    placeholder="Please enter the penalty for extending a gap">
                         </p>
                         <p>
                             <label for="fg2">Matrix:</label><br>
-                            <select id = "matrix"> 
-                                <option value="BLOSUM62">BLOSUM62</option> 
+                            <select id="matrix">
+                                <option disabled selected value> Select a matrix.</option>
+                                <option value="BLOSUM62">BLOSUM62</option>
                                 <option value="BLOSUM45">BLOSUM45</option>
                                 <option value="BLOSUM50">BLOSUM50</option>
                                 <option value="BLOSUM80">BLOSUM80</option>
@@ -57,7 +63,7 @@
                         </p>
                         <p>
                             <label for="fg2">Algorithm:</label>
-                            <input type="number" id = "algorithm" class="form-control"
+                            <input type="number" id="algorithm" class="form-control" min="0" max="1"
                                    placeholder="Please enter the algorithm you would like to use">
                             <small id="AlgoHelp" class="form-text text-muted">The values possible are:<br>
                                 0 for double indexed, effective for average or larger sized query files<br>
@@ -65,7 +71,7 @@
                         </p>
                         <p>
                             <label for="fg2">Out format:</label>
-                            <input type="number" id = "outfmt" class="form-control"
+                            <input type="number" id="outfmt" class="form-control"
                                    placeholder="Please enter the number corresponding to the format you wish to receive">
                             <small id="OutfmtHelp" class="form-text text-muted">The values possible are:<br>
                                 0 for BLAST pairwise format<br>
@@ -78,38 +84,34 @@
                         </p>
                         <p>
                             <label for="fg2">Compression:</label>
-                            <input type="number" id = "compress" class="form-control"
+                            <input type="number" id="compress" class="form-control" min="0" max="1"
                                    placeholder="Please enter the number corresponding to the compression you wish to use">
                             <small id="compressHelp" class="form-text text-muted">The values are either 0 for no
                                 compression or 1 for zip compression.<br></small>
                         </p>
                         <p>
-                            <label for="fg2">Max target sequences:</label>
-                            <input type="number" id = "max-target-seqs" class="form-control"
-                                   placeholder="Please enter the maximum number of target sequences per query">
-                        </p>
-                        <p>
                             <label for="fg2">Minimum score:</label>
-                            <input type="number", id = "min-score" class="form-control" placeholder="Please enter the minimum bit score">
+                            <input type="number" id="min-score" class="form-control"
+                                   placeholder="Please enter the minimum bit score">
                         </p>
                         <p>
                             <label for="fg2">Identity:</label>
-                            <input type="number" id = "id" class="form-control"
+                            <input type="number" id="id" class="form-control"
                                    placeholder="Please enter the minimum percentage of sequence identity">
                         </p>
                         <p>
                             <label for="fg2">Query coverage:</label>
-                            <input type="number" id = "query-cover" class="form-control"
+                            <input type="number" id="query-cover" class="form-control"
                                    placeholder="Please enter the minimum percentage of query coverage">
                         </p>
                         <p>
                             <label for="fg2">Subject coverage:</label>
-                            <input type="number" id = "subject-cover" class="form-control"
+                            <input type="number" id="subject-cover" class="form-control"
                                    placeholder="Please enter the minimum percentage of subject coverage">
                         </p>
                         <p>
                             <label for="fg2">Max HSPs:</label>
-                            <input type="number" id = "max-hsps" class="form-control"
+                            <input type="number" id="max-hsps" class="form-control"
                                    placeholder="Please enter the maximum number of HSPs per subject sequence">
                         </p>
                     </div>
