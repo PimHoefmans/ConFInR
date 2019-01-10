@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+    <img src="https://via.placeholder.com/1170x100?text=Some+cool+bioinformatics+image">
+
+    <h2>Welcome to YEET</h2>
+    <h3><b>Y</b>et anoth<b>E</b>r m<b>E</b>tagenomics <b>T</b>ool</h3>
+    <hr>
+    <p>
+
+        YEET is a web based tool for analysis of metagenomics data. Several attributes can influence the quality of reads in metagenomics datasets.
+        YEET allows interactive filtering and visualization of metagenomics data to detect and remove low quality reads. Visualization includes:
+        <br>
+        <ul>
+            <li>Sequence length</li>
+            <li>Distribution of nucleotides</li>
+            <li>Percentage of paired reads</li>
+            <li>Identity score between forward and reverse complement sequences</li>
+        </ul>
+        <br><br>
+
+        YEET uses FASTQ files as input, which will undergo preprocessing to determine attributes for each read.
+        By using visualization and filtering specific attributes, low quality reads can be cleared from the data.
+
+    </p>
+    <hr>
+    <h4>Want to try it? <a href="{{ url_for('web.preprocessing') }}">Click here</a> </h4>
+
+    <hr>
+
+    <h3>
+        Some examples:
+    </h3>
+    <hr>
+    <h4>Want to try it? <a href="{{ url_for('web.preprocessing') }}">Click here</a> </h4>
+
+{% endblock %}
+
+
