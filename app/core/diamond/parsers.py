@@ -37,7 +37,7 @@ def convert_to_fasta(df: pd.DataFrame, uuid: str):
     :raises ValueError: If an incorrect object type is used.
     :raises FileExistsError: If output_path refers to an existing file.
     """
-    output_file = 'data/' + uuid + '/diamond/query/' + 'output.fasta'
+    output_file = 'data/' + uuid + '/diamond/query/' + 'query.fasta'
     if not os.path.exists(output_file):
         try:
             content = ''
