@@ -114,7 +114,7 @@ def confinr():
                             try:
                                 os.makedirs(query_storage_folder)
                                 diamond_input_form.query_file.data.save(query_storage_file_path)
-                                if any(ext in query_storage_file for ext in ['.txt', '.tsv']):
+                                if any(ext in query_storage_file for ext in ['.tsv']):
                                     convert_to_fasta(load_input(query_storage_file_path), session_id)
                                 query_uploaded = True
                             except Exception:
