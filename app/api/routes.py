@@ -1,7 +1,10 @@
-from flask import jsonify, request, session, send_file, abort
+from flask import jsonify, request, session, send_file, abort, flash, redirect, url_for
+from config import Config
 import json
 import io
+import os
 from app.api import bp
+from subprocess import call
 from app.core.objects.FastQDataframe import FastQDataframe
 from app.core.utils.to_json import seq_length_to_json, perc_count_to_json,get_paired_percentage_to_json, nucleotide_percentages_to_json
 from datetime import datetime
@@ -26,6 +29,72 @@ def sequence_length():
         subset = fastq_df.filter_equals(False, ['flagged'])
         response = seq_length_to_json(subset[['fw_seq_length', 'rv_seq_length']])
         return response
+    except KeyError:
+        abort(400)
+    except Exception:
+        abort(500)
+
+
+@bp.route('/diamond', methods=['POST'])
+def run_diamond():
+    """
+        Endpoint for running DIAMOND.
+        """
+    parameters = {
+        "--algo": request.form.get("algorithm"),
+        "--compress": request.form.get("compress"),
+        "--evalue": request.form.get("evalue"),
+        "--frameshift": request.form.get("frameshift"),
+        "--gapextend": request.form.get("gapExtend"),
+        "--gapopen": request.form.get("gapOpen"),
+        "--id": request.form.get("id"),
+        "--matrix": request.form.get("matrix"),
+        "--max-hsps": request.form.get("maxHSPS"),
+        "--max-target-seqs": request.form.get("maxTargetSeqs"),
+        "--min-score": request.form.get("minScore"),
+        "--outfmt": request.form.get("outfmt"),
+        "--query-cover": request.form.get("queryCover"),
+        "--sensitive": request.form.get("sensitive"),
+        "--more-sensitive": request.form.get("moreSensitive"),
+        "--subject-cover": request.form.get("subjectCover")
+    }
+    try:
+        session_id = session['id']
+        session_db = session['db_choice']
+        if os.path.exists('data/' + session_id + '/diamond/query/query.fasta'):
+            query = 'data/' + session_id + '/diamond/query/query.fasta'
+        elif os.path.exists('data/' + session_id + '/diamond/query/query.fastq'):
+            query = 'data/' + session_id + '/diamond/query/query.fastq'
+        else:
+            flash("No query file was found, please ensure that one was uploaded.")
+            return redirect(url_for('web.confinr'))
+
+        if os.path.exists('data/' + session_id + '/diamond/database/db.dmnd'):
+            db = 'data/' + session_id + '/diamond/query/query.fasta'
+        elif session['db_choice'] != '':
+            db = Config.DB_PATH+session_db
+        else:
+            flash("No database file was found, please ensure that one was uploaded or selected.")
+            return redirect(url_for('web.confinr'))
+
+        if not os.path.exists('data/' + session_id + '/diamond/output'):
+            os.makedirs('data/' + session_id + '/diamond/output')
+        out = 'data/' + session_id + '/diamond/output/diamond.m8'
+
+        command = 'diamond blastx -d ' + db + ' -q ' + query + ' -o ' + out
+
+        command_params = ""
+        for key, value in parameters.items():
+            if key == "--sensitive" or key == "--more-sensitive":
+                if value.lower() != "false":
+                    command_params += " " + key
+            else:
+                if value != "":
+                    command_params += " " + key + " " + value
+        if command_params != "":
+            command += command_params
+
+        call(command, shell=True)
     except KeyError:
         abort(400)
     except Exception:
