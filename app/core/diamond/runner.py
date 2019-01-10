@@ -8,7 +8,7 @@ def make_diamond_db(uuid: str):
     Run DIAMOND command in shell.
     :param uuid: Session id.
     """
-    input_file = 'data/' + uuid + '/diamond/database' + 'db.fasta'
-    database_file = 'data/' + uuid + '/diamond/database' + 'db.dmnd'
+    input_file = 'data/' + uuid + '/diamond/database/' + 'db.fasta'
+    database_file = 'data/' + uuid + '/diamond/database/' + 'db.dmnd'
     command = 'diamond makedb --in ' + input_file + ' -d ' + database_file
     call(command, shell=True)
