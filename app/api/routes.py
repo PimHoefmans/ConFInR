@@ -95,6 +95,8 @@ def run_diamond():
             command += command_params
 
         call(command, shell=True)
+        # FIXME: Create response
+        return "diamond completed"
     except KeyError:
         abort(400)
     except Exception:
