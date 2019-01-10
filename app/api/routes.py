@@ -12,6 +12,8 @@ from app.api import bp
 from app.core.objects.FastQDataframe import FastQDataframe
 from app.core.utils.to_json import seq_length_to_json, perc_count_to_json, \
     get_paired_percentage_to_json, nucleotide_percentages_to_json
+from app.core.bowtie2.Bowtie2_controller import bowtie2_builder, bowtie2_aligner
+from app.core.bowtie2.Bowtie2_result_parser import bowtie2_output_parser
 
 
 # METAGEN-55 | METAGEN-70
@@ -171,21 +173,28 @@ def identity():
     try:
         iden_perc = int(request.form.get('paired_read_percentage'))
         session_id = session['id']
-        fastq_df = FastQDataframe.load_pickle("data/" + session_id + "/pickle.pkl")
-        fastq_df.flag_greater_than('identity', iden_perc, 'identity_flag')
-        fastq_df.flag_any()
-        filtered_df = fastq_df.filter_equals(False, ['flagged'])
+        fastq_df = dd.read_parquet('data/' + session_id + '/parquet/', engine="pyarrow")
 
-        subset = filtered_df.round().groupby(['identity']).identity.count()
-        fastq_df.to_pickle(path='data/' + session_id + '/', filename='pickle')
+        fastq_df['identity_flag'] = fastq_df['overlap_identity_perc'].apply(
+            lambda row: False if iden_perc <= row else True, meta=(bool))
 
+        fastq_df['flagged'] = fastq_df[['paired_flag', 'fw_a_perc_flag', 'fw_t_perc_flag', 'fw_g_perc_flag',
+                                        'fw_c_perc_flag', 'rv_a_perc_flag', 'rv_t_perc_flag', 'rv_g_perc_flag',
+                                        'rv_c_perc_flag', 'fw_seq_len_flag', 'rv_seq_len_flag', 'identity_flag']].any(
+            axis=1)
+
+        filtered_df = fastq_df[fastq_df['flagged'] == False]
+        subset = filtered_df.round().groupby(['overlap_identity_perc']).overlap_identity_perc.count()
+
+        fastq_df.to_parquet('data/' + session_id + '/parquet/', engine="pyarrow", write_index=True)
         response = perc_count_to_json(subset)
         return jsonify(response)
-    except KeyError:
+    except KeyError as e:
+        logging.exception(e)
         abort(400)
-    except Exception:
+    except Exception as e:
+        logging.exception(e)
         abort(500)
-
 
 # METAGEN-173
 @bp.route('/export_tsv', methods=['GET'])
@@ -252,3 +261,29 @@ def zip_files(path, ziph):
     for root, dirs, files in os.walk(path):
         for file in files:
             ziph.write(os.path.join(root, file), arcname=file)
+
+@bp.route("/calc_identity", methods=["POST"])
+def call_identity():
+     try:
+        calculate = "True"
+        session_id = session['id']
+        fastq_df = dd.read_parquet('data/' + session_id + '/parquet/', engine="pyarrow")
+        for root, dirs, files in os.walk("data/"+ session_id):
+            if "fw_file.fastq" in files:
+                fw_fastq_file = os.path.join(root, "fw_file.fastq")
+            if "rv_file.fastq" in files:
+                rv_fastq_file = os.path.join(root, "rv_file.fastq")
+        if "overlap_identity_perc" in fastq_df.columns:
+            calculate = "False"
+        else:
+            bowtie2_builder(fw_fastq_file)
+            bowtie2_aligner(fw_fastq_file, rv_fastq_file)
+            fastq_df = bowtie2_output_parser(fastq_df)
+            fastq_df.to_parquet('data/' + session_id + '/parquet/', engine="pyarrow", write_index=True)
+        return calculate
+     except KeyError as e:
+         logging.exception(e)
+         abort(400)
+     except Exception as e :
+         logging.exception(e)
+         abort(500)
