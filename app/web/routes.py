@@ -141,6 +141,7 @@ def confinr():
                                         if any(ext in db_storage_file_path for ext in ['.fasta', '.gz']):
                                             make_diamond_db(session_id)
                                         db_uploaded = True
+                                        session['db_choice'] = db_none_chosen
                                     except Exception:
                                         if os.path.exists(db_storage_folder):
                                             rmtree(db_storage_folder)
