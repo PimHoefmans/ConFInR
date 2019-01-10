@@ -10,6 +10,8 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 
+import zipfile
+
 from app.core.utils.preprocess_utils import get_reverse_complement
 
 # regex pattern for the nucleotide sequence
@@ -20,14 +22,15 @@ HEADER_PATTERN = re.compile("^@.*HWI.+(:\d+){3,10}.+")
 PLUS_PATTERN = re.compile("^\+")
 
 
-def preprocess_fastq_files_mp(fw_file, rv_file, uuid: str):
+def preprocess_fastq_files_mp(og_fw_file, og_rv_file, uuid: str):
     """
 
-    :param fw_file: forward fastq file
-    :param rv_file: reverse fastq file
+    :param og_fw_file: forward fastq file
+    :param og_rv_file: reverse fastq file
     :param uuid: unique identifier saved in the flask session
     :return:
     """
+    fw_file, rv_file = handle_zip(og_fw_file, og_rv_file, uuid)
     fastq_df = initialize_dataframe(fw_file, rv_file)
     fastq_df = extend_dataframe(fastq_df)
     fastq_df.to_parquet('data/' + uuid + '/parquet/', engine="pyarrow")
@@ -234,3 +237,28 @@ def create_dask_dataframe(fw_data, rv_data):
     ddf['rv_seq_len_flag'] = False
     ddf['identity_flag'] = False
     return ddf
+
+
+def handle_zip(fw_file, rv_file, uuid):
+    """
+    checks if forward and reverse files are zipfile, if so the files will be unzipped
+    and return the extracted filepaths. If the files are not zipped the original files will be returned
+    :param fw_file:
+    :param rv_file:
+    :param uuid:
+    :return:
+    """
+    if fw_file.rsplit('.', 1)[1] in ['zip', 'gz']:
+        with zipfile.ZipFile(fw_file, 'r') as fw_zip:
+            fw_zip.extractall("data/"+uuid+"/fw_file/")
+            for root, dirs, files in os.walk("data/"+uuid+"/fw_file/"):
+                for file in files:
+                    fw_file = os.path.join(root, file)
+
+    if rv_file.rsplit('.', 1)[1] in ['zip', 'gz']:
+        with zipfile.ZipFile(rv_file, 'r') as fw_zip:
+            fw_zip.extractall("data/"+uuid+"/rv_file/")
+            for root, dirs, files in os.walk("data/"+uuid+"/rv_file/"):
+                for file in files:
+                    rv_file = os.path.join(root, file)
+    return fw_file, rv_file
