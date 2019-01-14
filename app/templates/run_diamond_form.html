@@ -1,0 +1,122 @@
+<p id="diamond_error" class="image_error"></p>
+<form id="run-diamond-form">
+    <div class="form-group">
+        <label for="fg1">Maximum number of target sequences per query:</label>
+        <input type="number" id="max-target-seqs" class="form-control" placeholder="25">
+        <label for="fg1">E-Value:</label>
+        <input type="number" id="evalue" step="any" formnovalidate class="form-control" placeholder="0.01">
+    </div>
+
+    <p>
+        <a class="btn btn-primary" data-toggle="collapse" href="#target1" role="button">
+            Advanced Parameters
+        </a>
+        <button type="button" onclick="run_diamond()" class="btn btn-danger">Run DIAMOND</button>
+        <button type="button" onclick="download_diamond()" class="btn btn-succes" disabled>Download output</button>
+    </p>
+
+    <div class="row">
+        <div class="col">
+            <div class="collapse myTarget" id="target1">
+                <div class="card card-body">
+                    <div class="form-group">
+                        <p>
+                            <label for="fg2">Sensitivity:</label><br>
+                            <input type="radio" id="no-sensitive" class="form-check-input" name="sensitivity"
+                                   id="optionsRadios1" value=""
+                                   checked> No extra sensitivity<br>
+                            <input type="radio" id="sensitive" class="form-check-input" name="sensitivity"
+                                   id="optionsRadios2"
+                                   value="sensitive"> Sensitive<br>
+                            <input type="radio" id="more-sensitive" class="form-check-input" name="sensitivity"
+                                   id="optionsRadios3"
+                                   value="more-sensitive"> More sensitive<br>
+                        </p>
+                        <p>
+                            <label for="fg2">Frameshift:</label>
+                            <input type="number" id="frameshift" class="form-control"
+                                   placeholder="Please enter the penalty for a frameshift">
+                        </p>
+                        <p>
+                            <label for="fg2">Gap Open:</label>
+                            <input type="number" id="gapopen" class="form-control"
+                                   placeholder="Please enter the penalty for opening a gap">
+                        </p>
+                        <p>
+                            <label for="fg2">Gap Extend:</label>
+                            <input type="number" id="gapextend" class="form-control"
+                                   placeholder="Please enter the penalty for extending a gap">
+                        </p>
+                        <p>
+                            <label for="fg2">Matrix:</label><br>
+                            <select id="matrix">
+                                <option disabled selected value> Select a matrix.</option>
+                                <option value="BLOSUM62">BLOSUM62</option>
+                                <option value="BLOSUM45">BLOSUM45</option>
+                                <option value="BLOSUM50">BLOSUM50</option>
+                                <option value="BLOSUM80">BLOSUM80</option>
+                                <option value="BLOSUM90">BLOSUM90</option>
+                                <option value="PAM250">PAM250</option>
+                                <option value="PAM70">PAM70</option>
+                                <option value="PAM30">PAM30</option>
+                            </select>
+                        </p>
+                        <p>
+                            <label for="fg2">Algorithm:</label>
+                            <input type="number" id="algorithm" class="form-control" min="0" max="1"
+                                   placeholder="Please enter the algorithm you would like to use">
+                            <small id="AlgoHelp" class="form-text text-muted">The values possible are:<br>
+                                0 for double indexed, effective for average or larger sized query files<br>
+                                1 for query indexed, especially effective for small query files<br></small>
+                        </p>
+                        <p>
+                            <label for="fg2">Out format:</label>
+                            <input type="number" id="outfmt" class="form-control"
+                                   placeholder="Please enter the number corresponding to the format you wish to receive">
+                            <small id="OutfmtHelp" class="form-text text-muted">The values possible are:<br>
+                                0 for BLAST pairwise format<br>
+                                5 for BLAST XML format<br>
+                                6 for BLAST tabular format<br>
+                                100 for Diamond Alignment Archive (DAA) format<br>
+                                101 for SAM format<br>
+                                102 for Taxonomic classification<br>
+                                103 for PAF format<br></small>
+                        </p>
+                        <p>
+                            <label for="fg2">Compression:</label>
+                            <input type="number" id="compress" class="form-control" min="0" max="1"
+                                   placeholder="Please enter the number corresponding to the compression you wish to use">
+                            <small id="compressHelp" class="form-text text-muted">The values are either 0 for no
+                                compression or 1 for zip compression.<br></small>
+                        </p>
+                        <p>
+                            <label for="fg2">Minimum score:</label>
+                            <input type="number" id="min-score" class="form-control"
+                                   placeholder="Please enter the minimum bit score">
+                        </p>
+                        <p>
+                            <label for="fg2">Identity:</label>
+                            <input type="number" id="id" class="form-control"
+                                   placeholder="Please enter the minimum percentage of sequence identity">
+                        </p>
+                        <p>
+                            <label for="fg2">Query coverage:</label>
+                            <input type="number" id="query-cover" class="form-control"
+                                   placeholder="Please enter the minimum percentage of query coverage">
+                        </p>
+                        <p>
+                            <label for="fg2">Subject coverage:</label>
+                            <input type="number" id="subject-cover" class="form-control"
+                                   placeholder="Please enter the minimum percentage of subject coverage">
+                        </p>
+                        <p>
+                            <label for="fg2">Max HSPs:</label>
+                            <input type="number" id="max-hsps" class="form-control"
+                                   placeholder="Please enter the maximum number of HSPs per subject sequence">
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
