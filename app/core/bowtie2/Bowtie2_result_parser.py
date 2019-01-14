@@ -1,14 +1,12 @@
 import os
 import pandas as pd
-import dask as dd
-
 
 
 def bowtie2_output_parser(fastq_df):
     """
-    function to parse the sam file, that bowtie2 gives as output, and get the overlap locations and add the identity to the dataframe
-    :param fastq_df: session dataframe
-    :return:
+    Parse the SAM file provided by Bowtie2 as output to get overlapping locations and add identity scores to DataFrame.
+    :param fastq_df: DataFrame containing FASTQ data.
+    :return: Updated fastq_df DataFrame.
     """
     outputfile = os.path.abspath("data/Bowtie2_data/output/output.sam")
     headers = []
@@ -25,10 +23,9 @@ def bowtie2_output_parser(fastq_df):
                 accepted = False
             if fw_pair_pos == 0 or rv_pair_pos == 0:
                 accepted = False
-
             rv_pair_pos = (len(fw_seq) - fw_pair_pos)
-            if accepted == True:
-                identity = round(calculate_identity(fw_seq, rv_seq, fw_pair_pos, rv_pair_pos),2)
+            if accepted:
+                identity = round(calculate_identity(fw_seq, rv_seq, fw_pair_pos, rv_pair_pos), 2)
                 headers.append(fw_header)
                 identities.append(identity)
 
@@ -39,25 +36,21 @@ def bowtie2_output_parser(fastq_df):
     return fastq_df
 
 
-def calculate_identity(fwseq, rvseq, fwpos, rvpos):
+def calculate_identity(fw_seq, rv_seq, fw_pos, rv_pos):
     """
-    function tot calculate the identitie of the overlap of both sequences
-    :param fwseq: forward sequence of a paired end read
-    :param rvseq: reverse sequence of a paired end read
-    :param fwpos: starting position of overlap on forward sequence
-    :param rvpos: end position of overlap on reverse sequence
-    :return:
+    Calculate identity of overlap between both sequences.
+    :param fw_seq: Forward sequence of a paired end read.
+    :param rv_seq: Reverse sequence of a paired end read.
+    :param fw_pos: Starting position of overlap on forward sequence.
+    :param rv_pos: End position of overlap on reverse sequence.
+    :return: Identity score.
     """
-    rvseq = rvseq[0:rvpos -1]
-    fwseq = fwseq[fwpos -1:len(fwseq)-1]
-    overlap_len = len(rvseq)
+    rv_seq = rv_seq[0:rv_pos - 1]
+    fw_seq = fw_seq[fw_pos - 1:len(fw_seq) - 1]
+    overlap_len = len(rv_seq)
     hit = 0
     for x in range(0,overlap_len):
-        if fwseq[x] == rvseq[x]:
+        if fw_seq[x] == rv_seq[x]:
             hit += 1
     identity = 100 / overlap_len * hit
     return identity
-
-
-
-
