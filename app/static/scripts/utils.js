@@ -1,8 +1,3 @@
-/*
- * HEADER
- * IM THE OWNER
- */
-
 function download_tsv(){
     var minSL = $( "#min_seq_len" ).val();
     var maxSL = $( "#max_seq_len" ).val();
@@ -34,16 +29,17 @@ function clear_errors(){
 
 }
 
-function disable_buttons(){
-    $( ".action_button").attr("disabled", true);
+function disable_buttons() {
+    $(':button').prop("disabled",true);
 }
 
-function enable_buttons(){
-    $( ".action_button").attr("disabled", false);
+function enable_buttons() {
+    $(':button').prop("disabled",false);
 }
 
 function make_seq_image(){
     clear_errors();
+    disable_buttons();
     var min_seq_len = $( "#min_seq_len" ).val();
     var max_seq_len = $( "#max_seq_len" ).val();
 
@@ -68,10 +64,12 @@ function make_seq_image(){
             visualizeSequenceLength(JSON.parse(response));
         }
     });
+    enable_buttons();
 }
 
 function make_paired_image(){
     clear_errors();
+    disable_buttons();
     var filter_paired = $( "#checkPaired").is(":checked");
     $.ajax({
         type: "POST",
@@ -93,10 +91,12 @@ function make_paired_image(){
             visualizePairedReads(JSON.parse(response));
         }
     });
+    enable_buttons();
 }
 
 function make_nucleotide_image(){
     clear_errors();
+    disable_buttons();
     var min_A_value = $( "#min_A_value" ).val();
     var min_T_value = $( "#min_T_value" ).val();
     var min_G_value = $( "#min_G_value" ).val();
@@ -135,11 +135,13 @@ function make_nucleotide_image(){
         }
 
     });
+    enable_buttons();
 }
 
 
 function make_identity_image(){
     clear_errors();
+    disable_buttons();
     var pairedReadPercentage = $( "#paired_read_percentage" ).val()
         $.ajax({
         type: "POST",
@@ -161,4 +163,5 @@ function make_identity_image(){
             forwardReverseCompare(JSON.parse(response));
         }
     });
+    enable_buttons();
 }
