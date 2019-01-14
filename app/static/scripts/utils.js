@@ -1,19 +1,18 @@
-function download_tsv() {
-    var minSL = $("#min_seq_len").val();
-    var maxSL = $("#max_seq_len").val();
-    var filterP = $("#checkPaired").is(":checked");
-    var minA = $("#min_A_value").val();
-    var minT = $("#min_T_value").val();
-    var minG = $("#min_G_value").val();
-    var minC = $("#min_C_value").val();
-    var maxA = $("#max_A_value").val();
-    var maxT = $("#max_T_value").val();
-    var maxG = $("#max_G_value").val();
-    var maxC = $("#max_C_value").val();
-    var pairedRP = $("#paired_read_percentage").val();
-    window.location.href = "http://127.0.0.1:5000/api/export_tsv?minSL=" + minSL + "&maxSL=" + maxSL + "&filterP=" + filterP + "&minA=" + minA +
-        "&minT=" + minT + "&minG=" + minG + "&minC=" + minC + "&maxA=" + maxA + "&maxT=" + maxT + "&maxG=" + maxG + "&maxC=" + maxC + "&pairedRP=" + pairedRP;
-}
+function download_tsv(){
+    var minSL = $( "#min_seq_len" ).val();
+    var maxSL = $( "#max_seq_len" ).val();
+    var filterP = $( "#checkPaired").is(":checked");
+    var minA = $( "#min_A_value" ).val();
+    var minT = $( "#min_T_value" ).val();
+    var minG = $( "#min_G_value" ).val();
+    var minC = $( "#min_C_value" ).val();
+    var maxA = $( "#max_A_value" ).val();
+    var maxT = $( "#max_T_value" ).val();
+    var maxG = $( "#max_G_value" ).val();
+    var maxC = $( "#max_C_value" ).val();
+    var pairedRP = $( "#paired_read_percentage" ).val();
+    window.location.href = "http://127.0.0.1:5000/api/export_tsv?minSL="+minSL+"&maxSL="+maxSL+"&filterP="+filterP+"&minA="+minA+
+    "&minT="+minT+"&minG="+minG+"&minC="+minC+"&maxA="+maxA+"&maxT="+maxT+"&maxG="+maxG+"&maxC="+maxC+"&pairedRP="+pairedRP;
 
 function checkInp(input_list) {
     input_list.forEach(function (s) {
@@ -40,10 +39,9 @@ function enable_buttons() {
 
 function make_seq_image() {
     clear_errors();
-    var min_seq_len = $("#min_seq_len").val()
-    var max_seq_len = $("#max_seq_len").val()
-
-    // if (checkInp([min_seq_len, max_seq_len])){
+    var min_seq_len = $( "#min_seq_len" ).val();
+    var max_seq_len = $( "#max_seq_len" ).val();
+  
     $.ajax({
         type: "POST",
         url: "http://127.0.0.1:5000/api/sequence",
@@ -68,7 +66,8 @@ function make_seq_image() {
 
 function make_paired_image() {
     clear_errors();
-    var filter_paired = $("#checkPaired").is(":checked")
+    var filter_paired = $( "#checkPaired").is(":checked");
+  
     $.ajax({
         type: "POST",
         url: "http://127.0.0.1:5000/api/paired",
@@ -84,24 +83,24 @@ function make_paired_image() {
                 $("#paired_error").html("Internal server error, please contact the developers");
             }
         },
-        success: function (response) {
-            $("#pairsImage").css("height", "370px");
-            visualizePairedReads(JSON.parse(response))
+        success: function(response){
+            $( "#pairsImage" ).css("height","370px");
+            visualizePairedReads(JSON.parse(response));
         }
     });
 }
 
 function make_nucleotide_image() {
     clear_errors();
-    var min_A_value = $("#min_A_value").val()
-    var min_T_value = $("#min_T_value").val()
-    var min_G_value = $("#min_G_value").val()
-    var min_C_value = $("#min_C_value").val()
-    var max_A_value = $("#max_A_value").val()
-    var max_T_value = $("#max_T_value").val()
-    var max_G_value = $("#max_G_value").val()
-    var max_C_value = $("#max_C_value").val()
-    var bin_size = $("#nucleotide_bin_size").val()
+    var min_A_value = $( "#min_A_value" ).val();
+    var min_T_value = $( "#min_T_value" ).val();
+    var min_G_value = $( "#min_G_value" ).val();
+    var min_C_value = $( "#min_C_value" ).val();
+    var max_A_value = $( "#max_A_value" ).val();
+    var max_T_value = $( "#max_T_value" ).val();
+    var max_G_value = $( "#max_G_value" ).val();
+    var max_C_value = $( "#max_C_value" ).val();
+    var bin_size = $( "#nucleotide_bin_size" ).val();
 
     $.ajax({
         type: "POST",
@@ -135,6 +134,37 @@ function make_nucleotide_image() {
     });
 }
 
+function calculate_identity(){
+    clear_errors();
+
+    $.ajax({
+    type: "POST",
+    url: "http://127.0.0.1:5000/api/calc_identity",
+    statusCode: {
+            400: function(){
+                $("#identity_error").html("No known records are loaded, please make sure you uploaded your files in this session");
+                $("#load_identity").hide();
+            },
+            404: function(){
+                $("#identity_error").html("Not found, please report this error to the developers");
+                $("#load_identity").hide();
+            },
+            500: function(){
+                $("#identity_error").html("Internal server error, please contact the developers");
+                $("#load_identity").hide();
+            }
+    },
+    success: function(response){
+        if (response == "True"){
+        $("#identity_succes").html("Identity successful calculated");
+        }
+        else{
+        $("#identity_succes").html("Identity already calculated");
+        }
+        $("#load_identity").hide();
+    }
+    });
+}
 
 function make_identity_image() {
     clear_errors();
@@ -154,31 +184,12 @@ function make_identity_image() {
                 $("#identity_error").html("Internal server error, please contact the developers");
             }
         },
-        success: function (response) {
-            $("#identityImage").css("height", "370px");
+        success: function(response){
+            $( "#identityImage" ).css("height","370px");
             forwardReverseCompare(JSON.parse(response));
         }
     });
 }
-
-/* Export TSV functie via javascript
-function export_tsv_file(){
-    var posting = $.get('http://127.0.0.1:5000/api/export_tsv');
-    posting.done(function(response){
-        console.log(response)
-        var encodeUri = encodeURI(response);
-        var link = document.createElement("a");
-        link.href = 'data:text/tsv;charset=utf-8,' + encodeUri
-        link.target = '_blank'
-        link.download = 'export_data_JS.tsv'
-        document.body.appendChild(link);
-
-        link.click();
-        document.body.removeChild(link);
-
-    })
-    }
-*/
 
 function run_diamond() {
     var maxTargetSeqs = $("#max-target-seqs").val();
