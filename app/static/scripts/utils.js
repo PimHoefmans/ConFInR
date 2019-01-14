@@ -43,7 +43,6 @@ function make_seq_image(){
     var min_seq_len = $( "#min_seq_len" ).val();
     var max_seq_len = $( "#max_seq_len" ).val();
 
-    // if (checkInp([min_seq_len, max_seq_len])){
     $.ajax({
         type: "POST",
         url: "http://127.0.0.1:5000/api/sequence",
