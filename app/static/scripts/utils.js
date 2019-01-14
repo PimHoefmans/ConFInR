@@ -2,6 +2,7 @@
  * HEADER
  * IM THE OWNER
  */
+
 function download_tsv(){
     var minSL = $( "#min_seq_len" ).val();
     var maxSL = $( "#max_seq_len" ).val();
@@ -136,6 +137,43 @@ function make_nucleotide_image(){
     });
 }
 
+function calculate_identity(){
+    clear_errors();
+
+    $.ajax({
+    type: "POST",
+    url: "http://127.0.0.1:5000/api/calc_identity",
+    statusCode: {
+            400: function(){
+                $("#identity_error").html("No known records are loaded, please make sure you uploaded your files in this session");
+                $("#load_identity").hide();
+            },
+            404: function(){
+                $("#identity_error").html("Not found, please report this error to the developers");
+                $("#load_identity").hide();
+            },
+            500: function(){
+                $("#identity_error").html("Internal server error, please contact the developers");
+                $("#load_identity").hide();
+            }
+    },
+    success: function(response){
+        if (response == "True"){
+        $("#identity_succes").html("Identity successful calculated");
+        }
+        else{
+        $("#identity_succes").html("Identity already calculated");
+        }
+        $("#load_identity").hide();
+
+    }
+
+    });
+}
+
+
+
+
 
 function make_identity_image(){
     clear_errors();
@@ -157,25 +195,8 @@ function make_identity_image(){
         },
         success: function(response){
             $( "#identityImage" ).css("height","370px");
+
             forwardReverseCompare(JSON.parse(response));
         }
     });
 }
-/* Export TSV functie via javascript
-function export_tsv_file(){
-    var posting = $.get('http://127.0.0.1:5000/api/export_tsv');
-    posting.done(function(response){
-        console.log(response)
-        var encodeUri = encodeURI(response);
-        var link = document.createElement("a");
-        link.href = 'data:text/tsv;charset=utf-8,' + encodeUri
-        link.target = '_blank'
-        link.download = 'export_data_JS.tsv'
-        document.body.appendChild(link);
-
-        link.click();
-        document.body.removeChild(link);
-
-    })
-    }
-*/

@@ -2,6 +2,7 @@ import pandas as pd
 import collections
 import json
 import math
+import dask.dataframe as dd
 
 
 def seq_length_to_json(df):
@@ -20,7 +21,8 @@ def seq_length_to_json(df):
 
 
 def perc_count_to_json(df):
-    df_count = pd.Series.to_frame(df)
+    ddf = df.compute()
+    df_count = pd.Series.to_frame(ddf)
     df_count.index.names = ["perc"]
     return df_count.to_json(orient="table")
 
