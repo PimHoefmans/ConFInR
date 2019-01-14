@@ -58,8 +58,8 @@ def preprocessing():
                 session_id = str(uuid.uuid1())
                 session['id'] = session_id
             finally:
-                renamed_fw_file = 'fw_file.fastq'
-                renamed_rc_file = 'rv_file.fastq'
+                renamed_fw_file = 'fw_file.'+fw_file.rsplit('.', 1)[1].lower()
+                renamed_rc_file = 'rv_file.'+rv_file.rsplit('.', 1)[1].lower()
                 if not os.path.exists('data/'+session_id):
                     try:
                         os.makedirs('data/'+session_id)
