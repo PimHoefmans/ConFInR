@@ -34,6 +34,8 @@ function forwardReverseCompare(data){
             type: "column",                         //sets the kind of graph you will get
             indexLabel: "{y}",                      //gives the columns a label based on their Y-axis value
             indexLabelOrientation: "vertical",      //makes the above named label appear vertical
+            indexLabelFontSize: 8,
+            indexLabelPlacement: "outside",
             indexLabelFontColor: "black",           //makes the above named label black
             xValueFormatString: ("#'%'"),           //when you go over a column with your mouse a % will show before the X-axis value
             dataPoints: dataPoints
@@ -54,7 +56,7 @@ function forwardReverseCompare(data){
         for (var i = 0; i < arrayLength; i++) {
             dataPoints.push({
                 x: g_data[i].perc,
-                y: g_data[i].identity
+                y: g_data[i].overlap_identity_perc
             });
         }
         pairsChart.render();

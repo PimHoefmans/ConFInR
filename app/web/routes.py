@@ -2,6 +2,7 @@ import datetime
 import os
 import re
 import uuid
+import logging
 from shutil import rmtree
 from flask import render_template, redirect, url_for, session, request, flash
 from app.web import bp
@@ -66,7 +67,8 @@ def preprocessing():
                         form.reverse_file.data.save('data/' + session_id + '/' + renamed_rc_file)
                         preprocess_fastq_files_mp('data/' + session_id + '/' + renamed_fw_file, 'data/' + session_id + '/' + renamed_rc_file, session_id)
                         return redirect(url_for('web.preprocessing'))
-                    except Exception:
+                    except Exception as e:
+                        logging.exception(e)
                         if os.path.exists('data/'+session_id):
                             rmtree('data/'+session_id)
                         session.clear()

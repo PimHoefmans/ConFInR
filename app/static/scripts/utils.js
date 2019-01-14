@@ -137,6 +137,43 @@ function make_nucleotide_image(){
     });
 }
 
+function calculate_identity(){
+    clear_errors();
+
+    $.ajax({
+    type: "POST",
+    url: "http://127.0.0.1:5000/api/calc_identity",
+    statusCode: {
+            400: function(){
+                $("#identity_error").html("No known records are loaded, please make sure you uploaded your files in this session");
+                $("#load_identity").hide();
+            },
+            404: function(){
+                $("#identity_error").html("Not found, please report this error to the developers");
+                $("#load_identity").hide();
+            },
+            500: function(){
+                $("#identity_error").html("Internal server error, please contact the developers");
+                $("#load_identity").hide();
+            }
+    },
+    success: function(response){
+        if (response == "True"){
+        $("#identity_succes").html("Identity successful calculated");
+        }
+        else{
+        $("#identity_succes").html("Identity already calculated");
+        }
+        $("#load_identity").hide();
+
+    }
+
+    });
+}
+
+
+
+
 
 function make_identity_image(){
     clear_errors();
@@ -158,6 +195,7 @@ function make_identity_image(){
         },
         success: function(response){
             $( "#identityImage" ).css("height","370px");
+
             forwardReverseCompare(JSON.parse(response));
         }
     });

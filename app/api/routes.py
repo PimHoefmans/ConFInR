@@ -12,6 +12,8 @@ from app.api import bp
 from app.core.objects.FastQDataframe import FastQDataframe
 from app.core.utils.to_json import seq_length_to_json, perc_count_to_json, \
     get_paired_percentage_to_json, nucleotide_percentages_to_json
+from app.core.bowtie2.Bowtie2_controller import bowtie2_builder, bowtie2_aligner
+from app.core.bowtie2.Bowtie2_result_parser import bowtie2_output_parser
 
 
 # METAGEN-55 | METAGEN-70
@@ -33,8 +35,7 @@ def sequence_length():
         fastq_df['flagged'] = fastq_df[['paired_flag', 'fw_a_perc_flag', 'fw_t_perc_flag', 'fw_g_perc_flag',
                                         'fw_c_perc_flag', 'rv_a_perc_flag', 'rv_t_perc_flag', 'rv_g_perc_flag',
                                         'rv_c_perc_flag', 'fw_seq_len_flag', 'rv_seq_len_flag', 'identity_flag']].any(
-            axis=1)
-
+                                        axis=1)
         fastq_df.to_parquet('data/' + session_id + '/parquet/', engine="pyarrow", write_index=True)
 
         subset = fastq_df[fastq_df['flagged'] == False]
@@ -52,15 +53,14 @@ def sequence_length():
 @bp.route('/nucleotide', methods=['POST'])
 def nucleotide():
     """
-    Endpoint for getting filtered data about nucleotide ratio's
-    Added: Now possible to filter on a specific nucleotide
+    Endpoint for getting filtered data about nucleotide ratios
     :return: json object
     """
     try:
         session_id = session['id']
         fastq_df = dd.read_parquet('data/' + session_id + '/parquet/', engine="pyarrow")
 
-        # obtain data from the ajax post request
+        # Obtain data from ajax post request
         min_A_perc = int(request.form.get('minAValue'))
         min_T_perc = int(request.form.get('minTValue'))
         min_G_perc = int(request.form.get('minGValue'))
@@ -71,7 +71,7 @@ def nucleotide():
         max_C_perc = int(request.form.get('maxCValue'))
         bin_size = int(request.form.get('BinSize'))
 
-        # flag the dataframe for the individual nucleotide percentages
+        # Flag the dataframe for the individual nucleotide percentages
         fastq_df['fw_A_flag'] = fastq_df['fw_A_perc'].apply(
             lambda row: False if min_A_perc <= row <= max_A_perc else True, meta=(bool))
         fastq_df['fw_T_flag'] = fastq_df['fw_T_perc'].apply(
@@ -89,12 +89,13 @@ def nucleotide():
         fastq_df['rv_C_flag'] = fastq_df['rv_C_perc'].apply(
             lambda row: False if min_C_perc <= row <= max_C_perc else True, meta=(bool))
 
-        # aggregate the individual flags as a result for the column flagged
+        # Aggregate the individual flags as a result for the column flagged
         fastq_df['flagged'] = fastq_df[['paired_flag', 'fw_a_perc_flag', 'fw_t_perc_flag', 'fw_g_perc_flag',
                                         'fw_c_perc_flag', 'rv_a_perc_flag', 'rv_t_perc_flag', 'rv_g_perc_flag',
                                         'rv_c_perc_flag', 'fw_seq_len_flag', 'rv_seq_len_flag', 'identity_flag']].any(
-            axis=1)
-        # save dask dataframe
+                                        axis=1)
+
+        # Save dask dataframe
         fastq_df.to_parquet('data/' + session_id + '/parquet/', engine="pyarrow", write_index=True)
         subset = fastq_df[fastq_df['flagged'] == False]
         fw_json = nucleotide_percentages_to_json(subset[['fw_A_perc', 'fw_T_perc', 'fw_C_perc', 'fw_G_perc']].compute(),
@@ -167,23 +168,30 @@ def identity():
     Endpoint for filtering the dataframe on identity score and getting json data for an image
     :return: json object
     """
-
     try:
         iden_perc = int(request.form.get('paired_read_percentage'))
         session_id = session['id']
-        fastq_df = FastQDataframe.load_pickle("data/" + session_id + "/pickle.pkl")
-        fastq_df.flag_greater_than('identity', iden_perc, 'identity_flag')
-        fastq_df.flag_any()
-        filtered_df = fastq_df.filter_equals(False, ['flagged'])
+        fastq_df = dd.read_parquet('data/' + session_id + '/parquet/', engine="pyarrow")
 
-        subset = filtered_df.round().groupby(['identity']).identity.count()
-        fastq_df.to_pickle(path='data/' + session_id + '/', filename='pickle')
+        fastq_df['identity_flag'] = fastq_df['overlap_identity_perc'].apply(
+            lambda row: False if iden_perc <= row else True, meta=(bool))
 
+        fastq_df['flagged'] = fastq_df[['paired_flag', 'fw_a_perc_flag', 'fw_t_perc_flag', 'fw_g_perc_flag',
+                                        'fw_c_perc_flag', 'rv_a_perc_flag', 'rv_t_perc_flag', 'rv_g_perc_flag',
+                                        'rv_c_perc_flag', 'fw_seq_len_flag', 'rv_seq_len_flag', 'identity_flag']].any(
+                                        axis=1)
+
+        filtered_df = fastq_df[fastq_df['flagged'] == False]
+        subset = filtered_df.round().groupby(['overlap_identity_perc']).overlap_identity_perc.count()
+
+        fastq_df.to_parquet('data/' + session_id + '/parquet/', engine="pyarrow", write_index=True)
         response = perc_count_to_json(subset)
         return jsonify(response)
-    except KeyError:
+    except KeyError as e:
+        logging.exception(e)
         abort(400)
-    except Exception:
+    except Exception as e:
+        logging.exception(e)
         abort(500)
 
 
@@ -252,3 +260,30 @@ def zip_files(path, ziph):
     for root, dirs, files in os.walk(path):
         for file in files:
             ziph.write(os.path.join(root, file), arcname=file)
+
+
+@bp.route("/calc_identity", methods=["POST"])
+def call_identity():
+    try:
+        calculate = "True"
+        session_id = session['id']
+        fastq_df = dd.read_parquet('data/' + session_id + '/parquet/', engine="pyarrow")
+        for root, dirs, files in os.walk("data/"+ session_id):
+            if "fw_file.fastq" in files:
+                fw_fastq_file = os.path.join(root, "fw_file.fastq")
+            if "rv_file.fastq" in files:
+                rv_fastq_file = os.path.join(root, "rv_file.fastq")
+        if "overlap_identity_perc" in fastq_df.columns:
+            calculate = "False"
+        else:
+            bowtie2_builder(fw_fastq_file)
+            bowtie2_aligner(fw_fastq_file, rv_fastq_file)
+            fastq_df = bowtie2_output_parser(fastq_df)
+            fastq_df.to_parquet('data/' + session_id + '/parquet/', engine="pyarrow", write_index=True)
+        return calculate
+    except KeyError as e:
+        logging.exception(e)
+        abort(400)
+    except Exception as e :
+        logging.exception(e)
+        abort(500)

@@ -103,9 +103,22 @@
                     {{ wtf.quick_form(form) }}
                     <br>
                 {% endif %}
+
+                <img id="upload_load" src="{{ url_for('static', filename='images/loading2.gif') }}" style="display:inner;width:100px;height:auto;border:0;" >
+
                 <hr>
             </div>
-
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+$("#upload_load").hide();
+$("#submit").click(function () {
+    var fw_file = $("#forward_file").val();
+    var rv_file = $("#reverse_file").val();
+    if(fw_file != "" && rv_file != ""){
+        $("#upload_load").show();
+    };
+});
+</script>
             <div>
 
                 <h4>Paired reads</h4>
@@ -133,11 +146,20 @@
 
             <div>
                 <h4>Identity reads</h4>
+                <button id="calc_iden" onclick="calculate_identity()">Calculate identity(this may take a while)</button>
+                <img id="load_identity" src="{{ url_for('static', filename='images/loading2.gif') }}" style="display:inner;width:50px;height:auto;border:0;" >
+                <p id="identity_succes" class="image_succes"></p>
                 <button onclick="make_identity_image()">Make identity reads image</button>
                 <p id="identity_error" class="image_error"></p>
                 <div id="identityImage"></div>
                 <hr>
             </div>
+<script type="text/javascript">
+$("#load_identity").hide();
+$("#calc_iden").click(function () {
+    $("#load_identity").show();
+});
+</script>
             <!--<script>-->
             <!--function make_quality_image(){-->
             <!--var qValue = $( "#QualitySlider" ).val()-->
