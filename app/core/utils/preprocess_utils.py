@@ -3,7 +3,7 @@ from Bio.Seq import Seq
 from app.core.exceptions.exceptions import NonDNAException
 
 
-ALLOWED_EXTENSIONS = set(['fasta', 'fastq', 'tsv', 'csv', 'dmnd', 'gz', 'zip', '])
+ALLOWED_EXTENSIONS = set(['fasta', 'fastq', 'tsv', 'csv', 'dmnd', 'gz', 'zip'])
 
 
 def get_reverse_complement(input_seq):
