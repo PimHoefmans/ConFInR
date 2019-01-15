@@ -30,11 +30,11 @@ function clear_errors(){
 }
 
 function disable_buttons() {
-    $(':button').prop("disabled",true);
+    $(':button').prop('disabled', true);
 }
 
 function enable_buttons() {
-    $(':button').prop("disabled",false);
+    $(':button').prop('disabled', false);
 }
 
 function make_seq_image(){
