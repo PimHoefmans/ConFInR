@@ -10,7 +10,7 @@ from app.web.forms import FastQForm, DiamondInputForm
 from werkzeug.utils import secure_filename
 from app.core.utils.preprocess_utils import allowed_file
 from app.core.preprocessing.parser_mp import preprocess_fastq_files_mp
-from app.core.diamond.parsers import load_input, convert_to_fasta
+from app.core.diamond.parsers import load_input, merge_input, convert_to_fasta
 
 
 last_purge = None
@@ -101,7 +101,7 @@ def confinr():
                 session_id = str(uuid.uuid1())
                 session['id'] = session_id
             finally:
-                for extension in ['.tsv', '.txt', '.fasta', '.fastq', '.gz', '.dmnd']:
+                for extension in ['.tsv', '.zip', '.fasta', '.fastq', '.gz', '.dmnd']:
                     if extension in query_file:
                         query_storage_file = 'query'+extension
                     if extension in db_file:
@@ -116,8 +116,10 @@ def confinr():
                     try:
                         os.makedirs(query_storage_folder)
                         db_input_form.query_file.data.save(query_storage_file_path)
-                        if any(ext in query_storage_file for ext in ['.txt', '.tsv']):
+                        if any(ext in query_storage_file for ext in ['.tsv']):
                             convert_to_fasta(load_input(query_storage_file_path), session_id)
+                        elif any(ext in query_storage_file for ext in ['.zip']):
+                            convert_to_fasta(merge_input(query_storage_file_path), session_id)
                         query_upload_completed = True
                     except Exception:
                         if os.path.exists(query_storage_folder):
