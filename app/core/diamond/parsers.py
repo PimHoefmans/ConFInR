@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import zipfile
 
 SEQUENCE_COLUMNS = ['fw_seq', 'rvc_seq']
 
@@ -18,6 +19,32 @@ def load_input(input_path: str):
     try:
         df = pd.read_table(input_path, sep='\t', header='infer', index_col=0, comment='#')
         return df[~df.flagged].loc[:, SEQUENCE_COLUMNS]
+    except KeyError:
+        raise KeyError
+    except FileNotFoundError:
+        raise FileNotFoundError
+    except ValueError:
+        raise ValueError
+
+
+def merge_input(input_path: str):
+    """Merge zipped tab-delimited input data files.
+
+    Load tab-delimited data from input zip and concatenate into single DataFrame.
+    :param input_path: Path to input file.
+    :return: DataFrame with forward- and reverse complement sequences.
+    :raises KeyError: If requested key (e.g. sequence) is absent and can't be loaded.
+    :raises FileNotFoundError: If file_path doesn't refer to an existing file.
+    :raises ValueError: If an incorrect object type is used.
+    """
+    try:
+        with zipfile.ZipFile(input_path, 'r') as z:
+            merged_df = pd.concat( [ pd.read_table(''.join([ os.getcwd(), input_path.replace('.zip', ''), file ]),
+                                                   sep='\t',
+                                                   header='infer',
+                                                   index_col=0,
+                                                   comment='#') for file in z.namelist() if file.endswith('.tsv') ] )
+            return merged_df
     except KeyError:
         raise KeyError
     except FileNotFoundError:

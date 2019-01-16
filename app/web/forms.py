@@ -15,8 +15,8 @@ class FastQForm(FlaskForm):
 class DiamondInputForm(FlaskForm):
     query_file = FileField('Query file',
                            validators=[FileRequired(),
-                                       FileAllowed(['tsv', 'fasta', 'fastq', 'gz'],
-                                                   'Only tab-separated data or (compressed) FASTA/FASTQ')])
+                                        FileAllowed(['tsv', 'fasta', 'fastq', 'gz', 'zip'],
+                                                    'Only tab-separated data or (compressed) FASTA/FASTQ')])
     db_file = FileField('Database file',
                         validators=[Optional(),
                                     FileAllowed(['fasta', 'gz', 'dmnd'],
