@@ -122,9 +122,10 @@ def confinr():
                                     print('DEBUG: Zip file found', file=sys.stderr)
                                     convert_to_fasta(merge_input(query_storage_file_path), session_id)
                                 query_uploaded = True
-                            except Exception:
+                            except Exception as e :
                                 if os.path.exists(query_storage_folder):
                                     rmtree(query_storage_folder)
+                                print(e)
                                 flash('An error occurred while parsing the query file. Please make sure the file conforms to the required data formats.')
                                 return redirect(url_for('web.confinr'))
                         else:
