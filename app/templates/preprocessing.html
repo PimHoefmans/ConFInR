@@ -93,7 +93,7 @@
             <h4>Identity reads</h4>
             Minimum identity percentage paired reads<input type="number" id="paired_read_percentage" name="percentage" min="1" max="100" value="0" step="1">
             <br>
-            <br><button onclick="download_tsv()">Export to tsv</button>
+            <br><button class="action_button" onclick="download_tsv()">Export to tsv</button>
 
         </div>
         <div class="col-sm-9">
@@ -109,14 +109,14 @@
             <div>
 
                 <h4>Paired reads</h4>
-                <button onclick="make_paired_image()">Make paired reads image</button>
+                <button class="action_button" onclick="make_paired_image()">Make paired reads image</button>
                 <p id="paired_error" class="image_error"></p>
                 <div id="pairsImage"></div>
                 <hr>
             </div>
             <div>
                 <h4>Nucleotide ratio</h4>
-                <button onclick="make_nucleotide_image()">Make nucleotide ratio image</button>
+                <button class="action_button" onclick="make_nucleotide_image()">Make nucleotide ratio image</button>
                 <p id="nucleotide_error" class="image_error"></p>
                 <div id="fwNucleotideImage"></div>
                 <div id="rvcNucleotideImage"></div>
@@ -124,7 +124,7 @@
             </div>
             <div>
                 <h4>Sequence length</h4>
-                <button onclick="make_seq_image()">Make sequence image</button>
+                <button class="action_button" onclick="make_seq_image()">Make sequence image</button>
                 <p id="sequence_error" class="image_error"></p>
                 <div id="sequenceImage"></div>
                 <hr>
@@ -133,21 +133,11 @@
 
             <div>
                 <h4>Identity reads</h4>
-                <button onclick="make_identity_image()">Make identity reads image</button>
+                <button class="action_button" onclick="make_identity_image()">Make identity reads image</button>
                 <p id="identity_error" class="image_error"></p>
                 <div id="identityImage"></div>
                 <hr>
             </div>
-            <!--<script>-->
-            <!--function make_quality_image(){-->
-            <!--var qValue = $( "#QualitySlider" ).val()-->
-            <!--var post_qual = $.post( 'http://127.0.0.1:5000/api/paired',-->
-            <!--{ "qValue" : qValue });-->
-            <!--post_qual.done(function( response ) {-->
-            <!--alert(response);-->
-            <!--});-->
-            <!--}-->
-            <!--</script>-->
         </div>
     </div>
 
