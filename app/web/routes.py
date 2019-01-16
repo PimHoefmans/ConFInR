@@ -90,7 +90,6 @@ def preprocessing():
 @bp.route('/confinr', methods=['GET', 'POST'])
 def confinr():
     diamond_input_form = DiamondInputForm()
-    
     query_uploaded = False
     db_uploaded = False
     if diamond_input_form.validate_on_submit():
@@ -119,10 +118,10 @@ def confinr():
                                 diamond_input_form.query_file.data.save(query_storage_file_path)
                                 if any(ext in query_storage_file for ext in ['.tsv']):
                                     convert_to_fasta(load_input(query_storage_file_path), session_id)
-                                elif any(ext in query_storage_file for ext in ['.tsv']):
+                                elif any(ext in query_storage_file for ext in ['.zip']):
                                     import sys
                                     print('ZIP detetected', file=sys.stderr)
-                                    convert_to_fasta(merge_input(query_storage_file_path), session_id)         
+                                    convert_to_fasta(merge_input(query_storage_file_path), session_id)
                                 query_uploaded = True
                             except Exception:
                                 if os.path.exists(query_storage_folder):
