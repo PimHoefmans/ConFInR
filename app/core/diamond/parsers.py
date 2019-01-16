@@ -37,9 +37,11 @@ def merge_input(input_path: str):
     :raises FileNotFoundError: If file_path doesn't refer to an existing file.
     :raises ValueError: If an incorrect object type is used.
     """
+    print('DEBUG: input_path:', input_path)
+    print('DEBUG: read_table file name:', '/'.join([os.getcwd(), input_path.replace('.zip', ''), 'file'])
     try:
         with zipfile.ZipFile(input_path, 'r') as z:
-            merged_df = pd.concat( [ pd.read_table(''.join([ os.getcwd(), input_path.replace('.zip', ''), file ]),
+            merged_df = pd.concat( [ pd.read_table('/'.join([ os.getcwd(), input_path.replace('.zip', ''), file ]),
                                                    sep='\t',
                                                    header='infer',
                                                    index_col=0,
