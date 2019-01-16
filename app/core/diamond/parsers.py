@@ -38,7 +38,7 @@ def merge_input(input_path: str):
     :raises ValueError: If an incorrect object type is used.
     """
     print('DEBUG: input_path:', input_path)
-    print('DEBUG: read_table file name:', '/'.join([os.getcwd(), input_path.replace('.zip', ''), 'file'])
+    print('DEBUG: read_table file name:', '/'.join([os.getcwd(), input_path.replace('.zip', ''), 'file']))
     try:
         with zipfile.ZipFile(input_path, 'r') as z:
             merged_df = pd.concat( [ pd.read_table('/'.join([ os.getcwd(), input_path.replace('.zip', ''), file ]),
