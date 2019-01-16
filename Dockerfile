@@ -1,3 +1,8 @@
+#To build docker image from this file. Go in the terminal to the location of this file and use the following command: 
+# docker build -t confinr:0.1 .
+#To run the docker image use the following command
+# docker run -d -p 5000:5000 confinr:0.1 
+
 FROM python:3.5
 
 WORKDIR /home/ConFInR
