@@ -1,18 +1,19 @@
-function download_tsv(){
-    var minSL = $( "#min_seq_len" ).val();
-    var maxSL = $( "#max_seq_len" ).val();
-    var filterP = $( "#checkPaired").is(":checked");
-    var minA = $( "#min_A_value" ).val();
-    var minT = $( "#min_T_value" ).val();
-    var minG = $( "#min_G_value" ).val();
-    var minC = $( "#min_C_value" ).val();
-    var maxA = $( "#max_A_value" ).val();
-    var maxT = $( "#max_T_value" ).val();
-    var maxG = $( "#max_G_value" ).val();
-    var maxC = $( "#max_C_value" ).val();
-    var pairedRP = $( "#paired_read_percentage" ).val();
-    window.location.href = "http://127.0.0.1:5000/api/export_tsv?minSL="+minSL+"&maxSL="+maxSL+"&filterP="+filterP+"&minA="+minA+
-    "&minT="+minT+"&minG="+minG+"&minC="+minC+"&maxA="+maxA+"&maxT="+maxT+"&maxG="+maxG+"&maxC="+maxC+"&pairedRP="+pairedRP;
+function download_tsv() {
+    var minSL = $("#min_seq_len").val();
+    var maxSL = $("#max_seq_len").val();
+    var filterP = $("#checkPaired").is(":checked");
+    var minA = $("#min_A_value").val();
+    var minT = $("#min_T_value").val();
+    var minG = $("#min_G_value").val();
+    var minC = $("#min_C_value").val();
+    var maxA = $("#max_A_value").val();
+    var maxT = $("#max_T_value").val();
+    var maxG = $("#max_G_value").val();
+    var maxC = $("#max_C_value").val();
+    var pairedRP = $("#paired_read_percentage").val();
+    window.location.href = "http://127.0.0.1:5000/api/export_tsv?minSL=" + minSL + "&maxSL=" + maxSL + "&filterP=" + filterP + "&minA=" + minA +
+        "&minT=" + minT + "&minG=" + minG + "&minC=" + minC + "&maxA=" + maxA + "&maxT=" + maxT + "&maxG=" + maxG + "&maxC=" + maxC + "&pairedRP=" + pairedRP;
+}
 
 function checkInp(input_list) {
     input_list.forEach(function (s) {
@@ -221,17 +222,21 @@ function run_diamond() {
         statusCode: {
             400: function () {
                 $("#diamond_error").html("No known records are loaded, please make sure you uploaded your files in this session");
+                $("#load_identity").hide();
             },
             404: function () {
                 $("#diamond_error").html("Not found, please report this error to the developers");
+                $("#load_identity").hide();
             },
             500: function () {
                 $("#diamond_error").html("Internal server error, please contact the developers");
+                $("#load_identity").hide();
             }
         },
         success: function (response) {
             // TODO: Handle repsonse
             console.log(response);
+
         }
     });
 }
