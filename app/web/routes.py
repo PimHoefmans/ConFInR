@@ -74,8 +74,7 @@ def preprocessing():
                         if os.path.exists('data/'+session_id):
                             rmtree('data/'+session_id)
                         session.clear()
-                        flash('An error occurred while parsing the input files, please make sure the '
-                              'files conform the fastq standard')
+                        flash('An error occurred while parsing the input files, please make sure the files conform the fastq standard')
                         return redirect(url_for('web.preprocessing'))
                 else:
                     flash("Files are already uploaded")
@@ -90,7 +89,6 @@ def preprocessing():
 @bp.route('/confinr', methods=['GET', 'POST'])
 def confinr():
     diamond_input_form = DiamondInputForm()
-    
     query_uploaded = False
     db_uploaded = False
     if diamond_input_form.validate_on_submit():
@@ -119,16 +117,13 @@ def confinr():
                                 diamond_input_form.query_file.data.save(query_storage_file_path)
                                 if any(ext in query_storage_file for ext in ['.tsv']):
                                     convert_to_fasta(load_input(query_storage_file_path), session_id)
-                                elif any(ext in query_storage_file for ext in ['.tsv']):
-                                    import sys
-                                    print('ZIP detetected', file=sys.stderr)
-                                    convert_to_fasta(merge_input(query_storage_file_path), session_id)         
+                                elif any(ext in query_storage_file for ext in ['.zip']):
+                                    convert_to_fasta(merge_input(query_storage_file_path), session_id)
                                 query_uploaded = True
                             except Exception:
                                 if os.path.exists(query_storage_folder):
                                     rmtree(query_storage_folder)
-                                flash('An error occurred while parsing the query file. Please make sure the file'
-                                      'conforms to the required data formats.')
+                                flash('An error occurred while parsing the query file. Please make sure the file conforms to the required data formats.')
                                 return redirect(url_for('web.confinr'))
                         else:
                             flash("File is already uploaded")
@@ -149,9 +144,11 @@ def confinr():
                                             make_diamond_db(session_id)
                                         db_uploaded = True
                                         session['db_choice'] = db_none_chosen
-                                    except Exception:
+                                    except Exception as e:
                                         if os.path.exists(db_storage_folder):
                                             rmtree(db_storage_folder)
+                                        import sys
+                                        print(e, file=sys.stderr)
                                         flash('An error occurred while parsing the query file. Please make sure the'
                                               'file conforms to the required data formats.')
                                         return redirect(url_for('web.confinr'))

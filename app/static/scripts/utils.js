@@ -15,6 +15,8 @@ function download_tsv() {
         "&minT=" + minT + "&minG=" + minG + "&minC=" + minC + "&maxA=" + maxA + "&maxT=" + maxT + "&maxG=" + maxG + "&maxC=" + maxC + "&pairedRP=" + pairedRP;
 }
 
+}
+
 function checkInp(input_list) {
     input_list.forEach(function (s) {
         if (isNaN(x)) {
