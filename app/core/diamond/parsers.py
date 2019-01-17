@@ -39,12 +39,11 @@ def merge_input(input_path: str):
     """
     try:
         with zipfile.ZipFile(input_path, 'r') as z:
-            print(z.namelist(), file=sys.stderr)
-            merged_df = pd.concat( [ pd.read_table(z.open(file),
-                                                   sep='\t',
-                                                   header='infer',
-                                                   index_col=0,
-                                                   comment='#') for file in z.namelist() if file.endswith('.tsv') ] )
+            merged_df = pd.concat([pd.read_table(z.open(file),
+                                                 sep='\t',
+                                                 header='infer',
+                                                 index_col=0,
+                                                 comment='#') for file in z.namelist() if file.endswith('.tsv')])
             return merged_df
     except KeyError:
         raise KeyError
