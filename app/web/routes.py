@@ -120,7 +120,7 @@ def confinr():
                                 elif any(ext in query_storage_file for ext in ['.zip']):
                                     convert_to_fasta(merge_input(query_storage_file_path), session_id)
                                 query_uploaded = True
-                            except Exception as e :
+                            except Exception:
                                 if os.path.exists(query_storage_folder):
                                     rmtree(query_storage_folder)
                                 flash('An error occurred while parsing the query file. Please make sure the file conforms to the required data formats.')
@@ -144,9 +144,11 @@ def confinr():
                                             make_diamond_db(session_id)
                                         db_uploaded = True
                                         session['db_choice'] = db_none_chosen
-                                    except Exception:
+                                    except Exception as e:
                                         if os.path.exists(db_storage_folder):
                                             rmtree(db_storage_folder)
+                                        import sys
+                                        print(e, file=sys.stderr)
                                         flash('An error occurred while parsing the query file. Please make sure the'
                                               'file conforms to the required data formats.')
                                         return redirect(url_for('web.confinr'))
