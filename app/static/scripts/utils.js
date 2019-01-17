@@ -14,6 +14,8 @@ function download_tsv(){
     window.location.href = "http://127.0.0.1:5000/api/export_tsv?minSL="+minSL+"&maxSL="+maxSL+"&filterP="+filterP+"&minA="+minA+
     "&minT="+minT+"&minG="+minG+"&minC="+minC+"&maxA="+maxA+"&maxT="+maxT+"&maxG="+maxG+"&maxC="+maxC+"&pairedRP="+pairedRP;
 
+}
+
 function checkInp(input_list) {
     input_list.forEach(function (s) {
         if (isNaN(x)) {

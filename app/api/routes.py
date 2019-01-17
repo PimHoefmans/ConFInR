@@ -293,7 +293,7 @@ def export_tsv():
 
         fastq_df.drop(['paired_flag', 'fw_a_perc_flag', 'fw_t_perc_flag', 'fw_g_perc_flag', 'fw_c_perc_flag',
                        'rv_a_perc_flag', 'rv_t_perc_flag', 'rv_g_perc_flag', 'rv_c_perc_flag', 'fw_seq_len_flag',
-                       'rv_seq_len_flag', 'identity_flag'], axis=1).to_csv('data/' + session_id + "/tsv/export-*.tsv")
+                       'rv_seq_len_flag', 'identity_flag'], axis=1).to_csv('data/' + session_id + "/tsv/export-*.tsv", sep="\t")
 
         mem = io.BytesIO()
         zipf = zipfile.ZipFile(mem, 'w', zipfile.ZIP_DEFLATED)
