@@ -4,6 +4,7 @@
 {% block scripts %}
     {{ super() }}
     <script type="text/javascript" src="{{ url_for('static', filename='scripts/utils.js') }}"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/custom.css') }}">
 {% endblock %}
 
@@ -13,16 +14,19 @@
     <div class="row">
         <div class="col-sm-12">
             <h4>Upload query- and database file</h4>
-            <br>
-            <b>TO DO: Insert description of query- and database file.</b>
-
+            <p class="text-primary">Accepted data formats for <b>query file</b>: FASTA/FASTQ (possibly ZIP/GZIP
+                compressed) or TSV (possibly ZIP compressed).<br>Accepted data formats for <b>database file</b>: DMND
+                (pre-built DIAMOND database) or FASTA (possibly GZIP compressed).<br>Currently RefSeq's nr-database
+                is the only existing database that can be selected.</p>
             {% if db_input_form %}
                 {{ wtf.quick_form(db_input_form) }}
             {% endif %}
             <hr>
 
             <h4>Run DIAMOND</h4>
-            {% include 'confinr_run.html' %}
+            <p class="text-primary">Various parameters can optionally be selected, click 'Advanced parameters' to expand
+                all possibilities. After completion the button 'Download output' will become available.</p>
+            {% include 'run_diamond_form.html' %}
             <hr>
         </div>
     </div>
