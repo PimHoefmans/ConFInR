@@ -1,3 +1,7 @@
+{% block scripts %}
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+{% endblock %}
+
 <p id="diamond_error" class="image_error"></p>
 <form id="run-diamond-form">
     <div class="form-group">
@@ -11,9 +15,19 @@
         <a class="btn btn-primary" data-toggle="collapse" href="#target1" role="button">
             Advanced Parameters
         </a>
-        <button type="button" onclick="run_diamond()" class="btn btn-danger">Run DIAMOND</button>
-        <button type="button" onclick="download_diamond()" class="btn btn-succes" disabled>Download output</button>
+        <button type="button" id="run-diamond" onclick="run_diamond()" class="btn btn-danger">Run DIAMOND</button>
+        <button type="button" id="download-diamond" onclick="download_diamond()" class="btn btn-succes" disabled>
+            Download output
+        </button>
+        <img id="load_identity" src="{{ url_for('static', filename='images/loading2.gif') }}"
+             style="display:inner;width:50px;height:auto;border:0;">
     </p>
+    <script type="text/javascript">
+        $("#load_identity").hide();
+        $("#run-diamond").click(function () {
+            $("#load_identity").show();
+        });
+    </script>
 
     <div class="row">
         <div class="col">
