@@ -1,7 +1,6 @@
 import pandas as pd
 import os
 import zipfile
-import sys
 
 SEQUENCE_COLUMNS = ['fw_seq', 'rvc_seq']
 
@@ -38,12 +37,10 @@ def merge_input(input_path: str):
     :raises FileNotFoundError: If file_path doesn't refer to an existing file.
     :raises ValueError: If an incorrect object type is used.
     """
-    print('DEBUG: input_path:', input_path)
-    print('DEBUG: read_table file name:', '/'.join([os.getcwd(), input_path.replace('.zip', ''), 'file']))
     try:
         with zipfile.ZipFile(input_path, 'r') as z:
             print(z.namelist(), file=sys.stderr)
-            merged_df = pd.concat( [ pd.read_table('/'.join([ os.getcwd(), input_path, file ]),
+            merged_df = pd.concat( [ pd.read_table(z.open(file),
                                                    sep='\t',
                                                    header='infer',
                                                    index_col=0,
@@ -51,8 +48,8 @@ def merge_input(input_path: str):
             return merged_df
     except KeyError:
         raise KeyError
-    # except FileNotFoundError:
-    #     raise FileNotFoundError
+    except FileNotFoundError:
+        raise FileNotFoundError
     except ValueError:
         raise ValueError
 
