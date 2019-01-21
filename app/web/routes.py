@@ -46,7 +46,8 @@ def index():
 
 @bp.route('/reset', methods = ['DELETE'])
 def reset():
-    session.clear()
+    if session.get("id"):    
+        session.pop("id")
     return "Success"
 
 

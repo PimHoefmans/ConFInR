@@ -43,6 +43,8 @@ function checkInp(input_list) {
 }
 function clear_errors(){
     $( ".image_error" ).html("");
+    $("#session_success").html("")
+    $("#session_error").html("")
 
 }
 
