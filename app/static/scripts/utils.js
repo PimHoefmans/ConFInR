@@ -1,19 +1,36 @@
-function download_tsv() {
-    var minSL = $("#min_seq_len").val();
-    var maxSL = $("#max_seq_len").val();
-    var filterP = $("#checkPaired").is(":checked");
-    var minA = $("#min_A_value").val();
-    var minT = $("#min_T_value").val();
-    var minG = $("#min_G_value").val();
-    var minC = $("#min_C_value").val();
-    var maxA = $("#max_A_value").val();
-    var maxT = $("#max_T_value").val();
-    var maxG = $("#max_G_value").val();
-    var maxC = $("#max_C_value").val();
-    var pairedRP = $("#paired_read_percentage").val();
-    window.location.href = "http://127.0.0.1:5000/api/export_tsv?minSL=" + minSL + "&maxSL=" + maxSL + "&filterP=" + filterP + "&minA=" + minA +
-        "&minT=" + minT + "&minG=" + minG + "&minC=" + minC + "&maxA=" + maxA + "&maxT=" + maxT + "&maxG=" + maxG + "&maxC=" + maxC + "&pairedRP=" + pairedRP;
+function download_tsv(){
+    var minSL = $( "#min_seq_len" ).val();
+    var maxSL = $( "#max_seq_len" ).val();
+    var filterP = $( "#checkPaired").is(":checked");
+    var minA = $( "#min_A_value" ).val();
+    var minT = $( "#min_T_value" ).val();
+    var minG = $( "#min_G_value" ).val();
+    var minC = $( "#min_C_value" ).val();
+    var maxA = $( "#max_A_value" ).val();
+    var maxT = $( "#max_T_value" ).val();
+    var maxG = $( "#max_G_value" ).val();
+    var maxC = $( "#max_C_value" ).val();
+    var pairedRP = $( "#paired_read_percentage" ).val();
+    window.location.href = "http://127.0.0.1:5000/api/export_tsv?minSL="+minSL+"&maxSL="+maxSL+"&filterP="+filterP+"&minA="+minA+
+    "&minT="+minT+"&minG="+minG+"&minC="+minC+"&maxA="+maxA+"&maxT="+maxT+"&maxG="+maxG+"&maxC="+maxC+"&pairedRP="+pairedRP;
 }
+
+function reset_session() {
+    clear_errors();
+
+    $.ajax({
+        type: "DELETE",
+        url:"http://127.0.0.1:5000/reset",
+        success:function( response) {
+            $("#session_success").html("Files were reset")
+        },
+        error:function( response) {
+            $("#session_error").html("Failed to reset files")
+        }
+
+    });
+}
+
 
 function checkInp(input_list) {
     input_list.forEach(function (s) {
@@ -24,9 +41,8 @@ function checkInp(input_list) {
     })
     return true;
 }
-
-function clear_errors() {
-    $(".image_error").html("");
+function clear_errors(){
+    $( ".image_error" ).html("");
 
 }
 
@@ -38,7 +54,7 @@ function enable_buttons() {
     $( ".action_button" ).attr("disabled", false);
 }
 
-function make_seq_image() {
+function make_seq_image(){
     clear_errors();
     disable_buttons();
     var min_seq_len = $( "#min_seq_len" ).val();
@@ -47,43 +63,42 @@ function make_seq_image() {
     $.ajax({
         type: "POST",
         url: "http://127.0.0.1:5000/api/sequence",
-        data: {"min_seq_len": min_seq_len, "max_seq_len": max_seq_len},
+        data: {"min_seq_len" : min_seq_len, "max_seq_len" : max_seq_len},
         statusCode: {
-            400: function () {
+            400: function(){
                 $("#sequence_error").html("No known records are loaded, please make sure you uploaded your files in this session");
             },
-            404: function () {
+            404: function(){
                 $("#sequence_error").html("Not found, please report this error to the developers");
             },
-            500: function () {
+            500: function(){
                 $("#sequence_error").html("Internal server error, please contact the developers");
             }
         },
-        success: function (response) {
-            $("#sequenceImage").css("height", "370px");
+        success: function( response ) {
+            $( "#sequenceImage" ).css("height","370px");
             visualizeSequenceLength(JSON.parse(response));
         }
     });
     enable_buttons();
 }
 
-function make_paired_image() {
+function make_paired_image(){
     clear_errors();
     disable_buttons();
     var filter_paired = $( "#checkPaired").is(":checked");
-  
     $.ajax({
         type: "POST",
         url: "http://127.0.0.1:5000/api/paired",
         data: {"FilterPaired": filter_paired},
         statusCode: {
-            400: function () {
+            400: function(){
                 $("#paired_error").html("No known records are loaded, please make sure you uploaded your files in this session");
             },
-            404: function () {
+            404: function(){
                 $("#paired_error").html("Not found, please report this error to the developers");
             },
-            500: function () {
+            500: function(){
                 $("#paired_error").html("Internal server error, please contact the developers");
             }
         },
@@ -95,7 +110,7 @@ function make_paired_image() {
     enable_buttons();
 }
 
-function make_nucleotide_image() {
+function make_nucleotide_image(){
     clear_errors();
     disable_buttons();
     var min_A_value = $( "#min_A_value" ).val();
@@ -111,25 +126,23 @@ function make_nucleotide_image() {
     $.ajax({
         type: "POST",
         url: "http://127.0.0.1:5000/api/nucleotide",
-        data: {
-            "minAValue": min_A_value, "minTValue": min_T_value, "minGValue": min_G_value, "minCValue": min_C_value,
-            "maxAValue": max_A_value, "maxTValue": max_T_value, "maxGValue": max_G_value, "maxCValue": max_C_value,
-            "BinSize": bin_size
-        },
+        data: { "minAValue" : min_A_value, "minTValue": min_T_value, "minGValue" : min_G_value, "minCValue": min_C_value,
+              "maxAValue" : max_A_value, "maxTValue": max_T_value,  "maxGValue" : max_G_value, "maxCValue": max_C_value,
+              "BinSize": bin_size},
         statusCode: {
-            400: function () {
+            400: function(){
                 $("#nucleotide_error").html("No known records are loaded, please make sure you uploaded your files in this session");
             },
-            404: function () {
+            404: function(){
                 $("#nucleotide_error").html("Not found, please report this error to the developers");
             },
-            500: function () {
+            500: function(){
                 $("#nucleotide_error").html("Internal server error, please contact the developers");
             }
         },
-        success: function (response) {
-            $("#fwNucleotideImage").css("height", "370px");
-            $("#rvcNucleotideImage").css("height", "370px");
+        success: function(response){
+            $( "#fwNucleotideImage" ).css("height","370px");
+            $( "#rvcNucleotideImage" ).css("height","370px");
             var combined = JSON.parse(response);
             var fw_json = combined.fw_json;
             var rvc_json = combined.rvc_json;
@@ -141,54 +154,23 @@ function make_nucleotide_image() {
     enable_buttons();
 }
 
-function calculate_identity(){
-    clear_errors();
 
-    $.ajax({
-    type: "POST",
-    url: "http://127.0.0.1:5000/api/calc_identity",
-    statusCode: {
+function make_identity_image(){
+    clear_errors();
+    disable_buttons();
+    var pairedReadPercentage = $( "#paired_read_percentage" ).val()
+        $.ajax({
+        type: "POST",
+        url: "http://127.0.0.1:5000/api/identity",
+        data: { "paired_read_percentage" : pairedReadPercentage },
+        statusCode: {
             400: function(){
                 $("#identity_error").html("No known records are loaded, please make sure you uploaded your files in this session");
-                $("#load_identity").hide();
             },
             404: function(){
                 $("#identity_error").html("Not found, please report this error to the developers");
-                $("#load_identity").hide();
             },
             500: function(){
-                $("#identity_error").html("Internal server error, please contact the developers");
-                $("#load_identity").hide();
-            }
-    },
-    success: function(response){
-        if (response == "True"){
-        $("#identity_succes").html("Identity successful calculated");
-        }
-        else{
-        $("#identity_succes").html("Identity already calculated");
-        }
-        $("#load_identity").hide();
-    }
-    });
-}
-
-function make_identity_image() {
-    clear_errors();
-    disable_buttons();
-    var pairedReadPercentage = $("#paired_read_percentage").val()
-    $.ajax({
-        type: "POST",
-        url: "http://127.0.0.1:5000/api/identity",
-        data: {"paired_read_percentage": pairedReadPercentage},
-        statusCode: {
-            400: function () {
-                $("#identity_error").html("No known records are loaded, please make sure you uploaded your files in this session");
-            },
-            404: function () {
-                $("#identity_error").html("Not found, please report this error to the developers");
-            },
-            500: function () {
                 $("#identity_error").html("Internal server error, please contact the developers");
             }
         },
@@ -198,53 +180,4 @@ function make_identity_image() {
         }
     });
     enable_buttons();
-}
-
-function run_diamond() {
-    var maxTargetSeqs = $("#max-target-seqs").val();
-    var evalue = $("#evalue").val();
-    var sensitive = $("#sensitive").is(":checked");
-    var moreSensitive = $("#more-sensitive").is(":checked");
-    var frameshift = $("#frameshift").val();
-    var gapOpen = $("#gapopen").val();
-    var gapExtend = $("#gapextend").val();
-    var matrix = $("#matrix").val();
-    var algorithm = $("#algorithm").val();
-    var outfmt = $("#outfmt").val();
-    var compress = $("#compress").val();
-    var minScore = $("#min-score").val();
-    var id = $("#id").val();
-    var queryCover = $("#query-cover").val();
-    var subjectCover = $("#subject-cover").val();
-    var maxHSPS = $("#max-hsps").val();
-
-    $.ajax({
-        type: "POST",
-        url: "http://127.0.0.1:5000/api/diamond",
-        data: {
-            "maxTargetSeqs": maxTargetSeqs, "evalue": evalue, "sensitive": sensitive, "moreSensitive": moreSensitive,
-            "frameshift": frameshift, "gapOpen": gapOpen, "gapExtend": gapExtend, "matrix": matrix,
-            "algorithm": algorithm, "outfmt": outfmt, "compress": compress, "minScore": minScore, "id": id,
-            "queryCover": queryCover, "subjectCover": subjectCover, "maxHSPS": maxHSPS
-        },
-        statusCode: {
-            400: function () {
-                $("#diamond_error").html("No known records are loaded, please make sure you uploaded your files in this session");
-                $("#load_identity").hide();
-            },
-            404: function () {
-                $("#diamond_error").html("Not found, please report this error to the developers");
-                $("#load_identity").hide();
-            },
-            500: function () {
-                $("#diamond_error").html("Internal server error, please contact the developers");
-                $("#load_identity").hide();
-            }
-        },
-        success: function (response) {
-            // TODO: Handle repsonse
-            console.log(response);
-
-        }
-    });
 }
