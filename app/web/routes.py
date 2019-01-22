@@ -48,8 +48,8 @@ def index():
 @bp.route('/preprocessing', methods=['GET', 'POST'])
 def preprocessing():
     form = FastQForm()
-
     if form.validate_on_submit():
+        form.submit.render_kw = {'disabled': True}
         fw_file = secure_filename(form.forward_file.data.filename)
         rv_file = secure_filename(form.reverse_file.data.filename)
         if allowed_file(fw_file) and allowed_file(rv_file):
@@ -82,7 +82,6 @@ def preprocessing():
         else:
             flash('Unsupported file types')
             return redirect(url_for('web.preprocessing'))
-
     return render_template('preprocessing.html', form=form)
 
 
@@ -144,11 +143,9 @@ def confinr():
                                             make_diamond_db(session_id)
                                         db_uploaded = True
                                         session['db_choice'] = db_none_chosen
-                                    except Exception as e:
+                                    except Exception:
                                         if os.path.exists(db_storage_folder):
                                             rmtree(db_storage_folder)
-                                        import sys
-                                        print(e, file=sys.stderr)
                                         flash('An error occurred while parsing the query file. Please make sure the'
                                               'file conforms to the required data formats.')
                                         return redirect(url_for('web.confinr'))

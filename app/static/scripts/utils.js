@@ -15,15 +15,16 @@ function download_tsv() {
         "&minT=" + minT + "&minG=" + minG + "&minC=" + minC + "&maxA=" + maxA + "&maxT=" + maxT + "&maxG=" + maxG + "&maxC=" + maxC + "&pairedRP=" + pairedRP;
 }
 
-function checkInp(input_list) {
-    input_list.forEach(function (s) {
-        if (isNaN(x)) {
-            alert("Must input numbers");
-            return false;
-        }
-    })
-    return true;
-}
+// TODO: implement this method for the number input fields
+//function checkInp(input_list) {
+//    input_list.forEach(function (s) {
+//        if (isNaN(x)) {
+//            alert("Must input numbers");
+//            return false;
+//        }
+//    })
+//    return true;
+//}
 
 function clear_errors() {
     $(".image_error").html("");
@@ -31,11 +32,15 @@ function clear_errors() {
 }
 
 function disable_buttons() {
-    $( ".action_button" ).attr("disabled", true);
+    $(function(){
+        $( ".action_button" ).prop("disabled", true);
+    });
 }
 
 function enable_buttons() {
-    $( ".action_button" ).attr("disabled", false);
+    $(function(){
+        $( ".action_button" ).prop("disabled", false);
+    });
 }
 
 function make_seq_image() {
@@ -64,7 +69,6 @@ function make_seq_image() {
             visualizeSequenceLength(JSON.parse(response));
         }
     });
-    enable_buttons();
 }
 
 function make_paired_image() {
@@ -92,7 +96,6 @@ function make_paired_image() {
             visualizePairedReads(JSON.parse(response));
         }
     });
-    enable_buttons();
 }
 
 function make_nucleotide_image() {
@@ -136,14 +139,12 @@ function make_nucleotide_image() {
             visualizeNucleotidePercentages(fw_json, "fwNucleotideImage", "Forward Clustered Nucleotide Percentage");
             visualizeNucleotidePercentages(rvc_json, "rvcNucleotideImage", "Reverse Clustered Nucleotide Percentage");
         }
-
     });
-    enable_buttons();
 }
 
 function calculate_identity(){
     clear_errors();
-
+    disable_buttons();
     $.ajax({
     type: "POST",
     url: "http://127.0.0.1:5000/api/calc_identity",
@@ -197,7 +198,6 @@ function make_identity_image() {
             forwardReverseCompare(JSON.parse(response));
         }
     });
-    enable_buttons();
 }
 
 function run_diamond() {
