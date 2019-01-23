@@ -1,3 +1,26 @@
+function reset_session() {
+    clear_errors();
+
+    $.ajax({
+        type: "DELETE",
+        url:"http://127.0.0.1:5000/reset",
+        success:function( response) {
+            $("#session_success").html("Files were reset")
+        },
+        error:function( response) {
+            $("#session_error").html("Failed to reset files")
+        }
+
+    });
+}
+
+
+function clear_errors(){
+    $( ".image_error" ).html("");
+    $("#session_success").html("")
+    $("#session_error").html("")
+}
+
 function download_tsv() {
     var minSL = $("#min_seq_len").val();
     var maxSL = $("#max_seq_len").val();
@@ -27,10 +50,7 @@ function download_tsv() {
 //    return true;
 //}
 
-function clear_errors() {
-    $(".image_error").html("");
 
-}
 
 function disable_buttons() {
     $(function(){
@@ -44,7 +64,7 @@ function enable_buttons() {
     });
 }
 
-function make_seq_image() {
+function make_seq_image(){
     clear_errors();
     disable_buttons();
     var min_seq_len = $( "#min_seq_len" ).val();
@@ -53,42 +73,41 @@ function make_seq_image() {
     $.ajax({
         type: "POST",
         url: "http://127.0.0.1:5000/api/sequence",
-        data: {"min_seq_len": min_seq_len, "max_seq_len": max_seq_len},
+        data: {"min_seq_len" : min_seq_len, "max_seq_len" : max_seq_len},
         statusCode: {
-            400: function () {
+            400: function(){
                 $("#sequence_error").html("No known records are loaded, please make sure you uploaded your files in this session");
             },
-            404: function () {
+            404: function(){
                 $("#sequence_error").html("Not found, please report this error to the developers");
             },
-            500: function () {
+            500: function(){
                 $("#sequence_error").html("Internal server error, please contact the developers");
             }
         },
-        success: function (response) {
-            $("#sequenceImage").css("height", "370px");
+        success: function( response ) {
+            $( "#sequenceImage" ).css("height","370px");
             visualizeSequenceLength(JSON.parse(response));
         }
     });
 }
 
-function make_paired_image() {
+function make_paired_image(){
     clear_errors();
     disable_buttons();
     var filter_paired = $( "#checkPaired").is(":checked");
-  
     $.ajax({
         type: "POST",
         url: "http://127.0.0.1:5000/api/paired",
         data: {"FilterPaired": filter_paired},
         statusCode: {
-            400: function () {
+            400: function(){
                 $("#paired_error").html("No known records are loaded, please make sure you uploaded your files in this session");
             },
-            404: function () {
+            404: function(){
                 $("#paired_error").html("Not found, please report this error to the developers");
             },
-            500: function () {
+            500: function(){
                 $("#paired_error").html("Internal server error, please contact the developers");
             }
         },
@@ -99,7 +118,7 @@ function make_paired_image() {
     });
 }
 
-function make_nucleotide_image() {
+function make_nucleotide_image(){
     clear_errors();
     disable_buttons();
     var min_A_value = $( "#min_A_value" ).val();
@@ -115,25 +134,23 @@ function make_nucleotide_image() {
     $.ajax({
         type: "POST",
         url: "http://127.0.0.1:5000/api/nucleotide",
-        data: {
-            "minAValue": min_A_value, "minTValue": min_T_value, "minGValue": min_G_value, "minCValue": min_C_value,
-            "maxAValue": max_A_value, "maxTValue": max_T_value, "maxGValue": max_G_value, "maxCValue": max_C_value,
-            "BinSize": bin_size
-        },
+        data: { "minAValue" : min_A_value, "minTValue": min_T_value, "minGValue" : min_G_value, "minCValue": min_C_value,
+              "maxAValue" : max_A_value, "maxTValue": max_T_value,  "maxGValue" : max_G_value, "maxCValue": max_C_value,
+              "BinSize": bin_size},
         statusCode: {
-            400: function () {
+            400: function(){
                 $("#nucleotide_error").html("No known records are loaded, please make sure you uploaded your files in this session");
             },
-            404: function () {
+            404: function(){
                 $("#nucleotide_error").html("Not found, please report this error to the developers");
             },
-            500: function () {
+            500: function(){
                 $("#nucleotide_error").html("Internal server error, please contact the developers");
             }
         },
-        success: function (response) {
-            $("#fwNucleotideImage").css("height", "370px");
-            $("#rvcNucleotideImage").css("height", "370px");
+        success: function(response){
+            $( "#fwNucleotideImage" ).css("height","370px");
+            $( "#rvcNucleotideImage" ).css("height","370px");
             var combined = JSON.parse(response);
             var fw_json = combined.fw_json;
             var rvc_json = combined.rvc_json;
@@ -178,19 +195,19 @@ function calculate_identity(){
 function make_identity_image() {
     clear_errors();
     disable_buttons();
-    var pairedReadPercentage = $("#paired_read_percentage").val()
-    $.ajax({
+    var pairedReadPercentage = $( "#paired_read_percentage" ).val()
+        $.ajax({
         type: "POST",
         url: "http://127.0.0.1:5000/api/identity",
-        data: {"paired_read_percentage": pairedReadPercentage},
+        data: { "paired_read_percentage" : pairedReadPercentage },
         statusCode: {
-            400: function () {
+            400: function(){
                 $("#identity_error").html("No known records are loaded, please make sure you uploaded your files in this session");
             },
-            404: function () {
+            404: function(){
                 $("#identity_error").html("Not found, please report this error to the developers");
             },
-            500: function () {
+            500: function(){
                 $("#identity_error").html("Internal server error, please contact the developers");
             }
         },
@@ -249,3 +266,4 @@ function run_diamond() {
         }
     });
 }
+

@@ -3,6 +3,16 @@
     font-weight: bold;
 }
 
+.session_success {
+    color: green;
+    font-weight: bold;
+}
+
+.session_error {
+    color: red;
+    font-weight: bold;
+}
+
 #min_A_value {
     width: 4em;
 }
