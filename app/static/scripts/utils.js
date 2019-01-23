@@ -170,6 +170,7 @@ function calculate_identity(){
         $("#identity_succes").html("Identity already calculated");
         }
         $("#load_identity").hide();
+        enable_buttons();
     }
     });
 }
