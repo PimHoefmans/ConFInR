@@ -134,7 +134,7 @@ def download_diamond():
             data.seek(0)
             return send_file(data,
                              mimetype='text/m8',
-                             attachment_filename='diamond_export.m8',
+                             attachment_filename='diamond_export-' + datetime.now().strftime("%Y%m%d-%H%M") + '.m8',
                              as_attachment=True)
     except KeyError as e:
         logging.exception(e)
