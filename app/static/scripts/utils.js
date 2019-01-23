@@ -17,8 +17,10 @@ function reset_session() {
 
 function clear_errors(){
     $( ".image_error" ).html("");
-    $("#session_success").html("")
-    $("#session_error").html("")
+    $( ".diamond_error").html("");
+    $( ".diamond_success").html("");
+    $("#session_success").html("");
+    $("#session_error").html("");
 }
 
 function download_tsv() {
@@ -220,6 +222,8 @@ function make_identity_image() {
 }
 
 function run_diamond() {
+    clear_errors();
+
     var maxTargetSeqs = $("#max-target-seqs").val();
     var evalue = $("#evalue").val();
     var sensitive = $("#sensitive").is(":checked");
@@ -260,11 +264,17 @@ function run_diamond() {
                 $("#load_identity").hide();
             }
         },
-        success: function (response) {
-            // TODO: Handle repsonse
-            console.log(response);
+        success: function () {
+            $("#load_identity").hide();
+            $(function(){
+                $( "#download-diamond" ).prop("disabled", false);
+            });
+            $("#diamond_success").html("DIAMOND run success!");
 
         }
     });
 }
 
+function download_diamond(){
+    window.location.href = "http://127.0.0.1:5000/api/download_diamond";
+}

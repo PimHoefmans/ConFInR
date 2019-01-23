@@ -3,7 +3,17 @@
     font-weight: bold;
 }
 
+.diamond_error {
+    color: red;
+    font-weight: bold;
+}
+
 .session_success {
+    color: green;
+    font-weight: bold;
+}
+
+.diamond_success {
     color: green;
     font-weight: bold;
 }

@@ -109,7 +109,7 @@ def confinr():
                 session_id = str(uuid.uuid1())
                 session['id'] = session_id
             finally:
-                for extension in ['.tsv', '.txt', '.fasta', '.fastq', '.gz', '.dmnd', 'zip']:
+                for extension in ['.tsv', '.txt', '.fasta', '.fastq', '.gz', '.dmnd', '.zip']:
                     if extension in query_file:
                         query_storage_file = 'query'+extension
                         query_storage_folder = 'data/' + session_id + '/diamond/query'
@@ -126,7 +126,8 @@ def confinr():
                             except Exception:
                                 if os.path.exists(query_storage_folder):
                                     rmtree(query_storage_folder)
-                                flash('An error occurred while parsing the query file. Please make sure the file conforms to the required data formats.')
+                                flash('An error occurred while parsing the query file. '
+                                      'Please make sure the file conforms to the required data formats.')
                                 return redirect(url_for('web.confinr'))
                         else:
                             flash("File is already uploaded")
@@ -159,8 +160,6 @@ def confinr():
                     else:
                         flash('Both a database file and an existing database are selected, please select only one.')
                         return redirect(url_for('web.confinr'))
-
-
 
                 if query_uploaded and db_uploaded:
                     flash('Both files have successfully been uploaded and processed.')

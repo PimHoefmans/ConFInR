@@ -81,16 +81,18 @@ def run_diamond():
         elif os.path.exists('data/' + session_id + '/diamond/query/query.fastq'):
             query = 'data/' + session_id + '/diamond/query/query.fastq'
         else:
+            # FIXME flash does not work with AJAX
             flash("No query file was found, please ensure that one was uploaded.")
-            return redirect(url_for('web.confinr'))
+            abort(500)
 
         if os.path.exists('data/' + session_id + '/diamond/database/db.dmnd'):
-            db = 'data/' + session_id + '/diamond/query/query.fasta'
+            db = 'data/' + session_id + '/diamond/database/db.dmnd'
         elif session['db_choice'] != '':
             db = Config.DB_PATH+session_db
         else:
+            # FIXME flash does not work with AJAX
             flash("No database file was found, please ensure that one was uploaded or selected.")
-            return redirect(url_for('web.confinr'))
+            abort(500)
 
         if not os.path.exists('data/' + session_id + '/diamond/output'):
             os.makedirs('data/' + session_id + '/diamond/output')
@@ -111,10 +113,34 @@ def run_diamond():
 
         call(command, shell=True)
         # FIXME: Create response
-        return "diamond completed"
+        return "The following diamond command has been completed: {}".format(command)
     except KeyError:
         abort(400)
     except Exception:
+        abort(500)
+
+
+@bp.route('/download_diamond', methods=['GET'])
+def download_diamond():
+    """
+    Export diamond result
+    :return: diamond result file
+    """
+    try:
+        session_id = session['id']
+
+        with open("data/"+session_id+"/diamond/output/diamond.m8", 'rb') as file:
+            data = io.BytesIO(file.read())
+            data.seek(0)
+            return send_file(data,
+                             mimetype='text/m8',
+                             attachment_filename='diamond_export.m8',
+                             as_attachment=True)
+    except KeyError as e:
+        logging.exception(e)
+        abort(400)
+    except Exception as e:
+        logging.exception(e)
         abort(500)
 
 
@@ -332,7 +358,7 @@ def zip_files(path, ziph):
 
 
 @bp.route("/calc_identity", methods=["POST"])
-def call_identity():
+def calc_identity():
     try:
         calculate = "True"
         session_id = session['id']
