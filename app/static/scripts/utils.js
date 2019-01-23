@@ -13,6 +13,7 @@ function download_tsv() {
     var pairedRP = $("#paired_read_percentage").val();
     window.location.href = "http://127.0.0.1:5000/api/export_tsv?minSL=" + minSL + "&maxSL=" + maxSL + "&filterP=" + filterP + "&minA=" + minA +
         "&minT=" + minT + "&minG=" + minG + "&minC=" + minC + "&maxA=" + maxA + "&maxT=" + maxT + "&maxG=" + maxG + "&maxC=" + maxC + "&pairedRP=" + pairedRP;
+
 }
 
 // TODO: implement this method for the number input fields

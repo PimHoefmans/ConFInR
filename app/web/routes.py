@@ -67,7 +67,7 @@ def preprocessing():
                         form.forward_file.data.save('data/' + session_id + '/' + renamed_fw_file)
                         form.reverse_file.data.save('data/' + session_id + '/' + renamed_rc_file)
                         preprocess_fastq_files_mp('data/' + session_id + '/' + renamed_fw_file, 'data/' + session_id + '/' + renamed_rc_file, session_id)
-                        flash('Files were successfully uploaded!')
+                        flash("Files were successfully uploaded.")
                         return redirect(url_for('web.preprocessing'))
                     except Exception as e:
                         logging.exception(e)
