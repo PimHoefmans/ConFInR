@@ -4,13 +4,10 @@
 {% block scripts %}
     {{ super() }}
 
-    <script type="text/javascript"
-            src="{{ url_for('static', filename='scripts/Visualize_Forward_Reverse_Compare.js') }}"></script>
-    <script type="text/javascript"
-            src="{{ url_for('static', filename='scripts/visualizeSequenceLength.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts/Visualize_Forward_Reverse_Compare.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts/visualizeSequenceLength.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='scripts/visualizePairedReads.js') }}"></script>
-    <script type="text/javascript"
-            src="{{ url_for('static', filename='scripts/visualizeNucleotidePercentage.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts/visualizeNucleotidePercentage.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='scripts/utils.js') }}"></script>
     <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/custom.css') }}">
@@ -19,25 +16,23 @@
 
 {% block app_content %}
 
-    <h2>Data visualization</h2>
+    <h2>YEET visualization</h2>
     <div class="row">
         <div class="col-sm-3">
-            <h4>Parameter selection</h4>
-            <p class="text-primary">To apply filters after images are already generated, click the image button(s)
-                again.</p>
+            <h4>Parameters</h4>
+            <br>
             <h4>Paired reads</h4>
             <input type="checkbox" id="checkPaired" checked> Filter unpaired reads?
-            <br>
-            <hr>
+            <br><hr>
             <h4>Nucleotide ratio</h4>
             Size of nucleotide percentage bins
-            <input type="range" id="nucleotide_bin_size" min="10" max="100" value="20" step="10">
+            <input  type="range" id="nucleotide_bin_size" min="10" max="100" value="20" step="10">
             <span>Value: </span><span id="binValue">20</span>
             <script>
                 var binSlider = document.getElementById("nucleotide_bin_size");
                 var binValue = document.getElementById("binValue");
                 binValue.innerHTML = binSlider.value;
-                binSlider.oninput = function () {
+                binSlider.oninput = function(){
                     binValue.innerHTML = this.value;
                 }
             </script>
@@ -50,10 +45,8 @@
                     <th>T%</th>
                 </tr>
                 <tr>
-                    <td><input type="number" id="min_A_value" name="min_A_value" min="0" max="100" value="0" step="1">
-                    </td>
-                    <td><input type="number" id="min_T_value" name="min_T_value" min="0" max="100" value="0" step="1">
-                    </td>
+                    <td><input type="number" id="min_A_value" name="min_A_value" min="0" max="100" value="0" step="1"></td>
+                    <td><input type="number" id="min_T_value" name="min_T_value" min="0" max="100" value="0" step="1"></td>
 
                 </tr>
             </table>
@@ -63,10 +56,8 @@
                     <th>C%</th>
                 </tr>
                 <tr>
-                    <td><input type="number" id="min_G_value" name="min_G_value" min="0" max="100" value="0" step="1">
-                    </td>
-                    <td><input type="number" id="min_C_value" name="min_C_value" min="0" max="100" value="0" step="1">
-                    </td>
+                    <td><input type="number" id="min_G_value" name="min_G_value" min="0" max="100" value="0" step="1"></td>
+                    <td><input type="number" id="min_C_value" name="min_C_value" min="0" max="100" value="0" step="1"></td>
                 </tr>
             </table>
             <br>Maximum nucleotide percentage
@@ -77,10 +68,8 @@
                     <th>T%</th>
                 </tr>
                 <tr>
-                    <td><input type="number" id="max_A_value" name="max_A_value" min="0" max="100" value="100" step="1">
-                    </td>
-                    <td><input type="number" id="max_T_value" name="max_T_value" min="0" max="100" value="100" step="1">
-                    </td>
+                    <td><input type="number" id="max_A_value" name="max_A_value" min="0" max="100" value="100" step="1"></td>
+                    <td><input type="number" id="max_T_value" name="max_T_value" min="0" max="100" value="100" step="1"></td>
 
                 </tr>
             </table>
@@ -90,14 +79,11 @@
                     <th>C%</th>
                 </tr>
                 <tr>
-                    <td><input type="number" id="max_G_value" name="max_G_value" min="0" max="100" value="100" step="1">
-                    </td>
-                    <td><input type="number" id="max_C_value" name="max_C_value" min="0" max="100" value="100" step="1">
-                    </td>
+                    <td><input type="number" id="max_G_value" name="max_G_value" min="0" max="100" value="100" step="1"></td>
+                    <td><input type="number" id="max_C_value" name="max_C_value" min="0" max="100" value="100" step="1"></td>
                 </tr>
             </table>
-            <br>
-            <hr>
+            <br><hr>
             <h4>Sequence length</h4>
             Minimum sequence length
             <input type="number" id="min_seq_len" name="min_len" min="1" max="99999" value="0">
@@ -105,9 +91,7 @@
             <input type="number" id="max_seq_len" name="max_len" min="1" max="99999" value="301">
             <hr>
             <h4>Identity reads</h4>
-            Minimum identity percentage paired reads<input type="number" id="paired_read_percentage" name="percentage"
-                                                           min="1" max="100" value="0" step="1">
-            <br>
+            Minimum identity percentage paired reads<input type="number" id="paired_read_percentage" name="percentage" min="1" max="100" value="0" step="1">
             <br>
             <br><button class="action_button" onclick="download_tsv()">Export to tsv</button>
 
@@ -117,14 +101,14 @@
                 <h4>Input files</h4>
                 {% if form %}
                     {{ wtf.quick_form(form) }}
+                    <button class = action_button" id = "reset" onclick="reset_session()">Reset files</button>
+                    <p id="session_error" class="image_error"></p>
+                    <p id="session_success" class="session_success"></p>
                     <br>
                 {% endif %}
-
-                <img id="upload_load" src="{{ url_for('static', filename='images/loading2.gif') }}"
-                     style="display:inner;width:100px;height:auto;border:0;">
-
                 <hr>
             </div>
+
             <script type="text/javascript"
                     src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
             <script type="text/javascript">
@@ -138,6 +122,7 @@
                     ;
                 });
             </script>
+
             <div>
 
                 <h4>Paired reads</h4>
@@ -165,23 +150,19 @@
 
             <div>
                 <h4>Identity reads</h4>
+
                 <p class="text-danger"><b>Warning: Calculating identity may take a while!
                     Please press the button below to start this process.</b></p>
                 <button id="calc_iden" class="action_button" onclick="calculate_identity()">Calculate identity</button>
                 <img id="load_identity" src="{{ url_for('static', filename='images/loading2.gif') }}"
                      style="display:inner;width:50px;height:auto;border:0;">
                 <p id="identity_succes" class="image_succes"></p>
+
                 <button class="action_button" onclick="make_identity_image()">Make identity reads image</button>
                 <p id="identity_error" class="image_error"></p>
                 <div id="identityImage"></div>
                 <hr>
             </div>
-            <script type="text/javascript">
-                $("#load_identity").hide();
-                $("#calc_iden").click(function () {
-                    $("#load_identity").show();
-                });
-            </script>
         </div>
     </div>
 

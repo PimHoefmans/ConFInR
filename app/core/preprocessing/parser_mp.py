@@ -5,13 +5,10 @@ Multiprocessed parser for fastq files
 import multiprocessing as mp
 import os
 import re
-import gc
 
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-
-import zipfile
 
 from app.core.utils.preprocess_utils import get_reverse_complement
 
@@ -23,20 +20,16 @@ HEADER_PATTERN = re.compile("^@.*HWI.+(:\d+){3,10}.+")
 PLUS_PATTERN = re.compile("^\+")
 
 
-def preprocess_fastq_files_mp(og_fw_file, og_rv_file, uuid: str):
+def preprocess_fastq_files_mp(fw_file, rv_file, uuid: str):
     """
-    Preprocess fastq files.
-    :param og_fw_file: forward fastq file
-    :param og_rv_file: reverse fastq file
+
+    :param fw_file: forward fastq file
+    :param rv_file: reverse fastq file
     :param uuid: unique identifier saved in the flask session
     :return:
     """
-    fw_file, rv_file = handle_zip(og_fw_file, og_rv_file, uuid)
-    gc.collect()
     fastq_df = initialize_dataframe(fw_file, rv_file)
-    gc.collect()
     fastq_df = extend_dataframe(fastq_df)
-    gc.collect()
     fastq_df.to_parquet('data/' + uuid + '/parquet/', engine="pyarrow")
 
 
@@ -54,8 +47,10 @@ def initialize_dataframe(fw_file, rv_file):
 
     for chunkStart, chunkSize in chunkify(fw_file):
         jobs_fw.append(pool_fw.apply_async(process_fastq_chunk, (fw_file, chunkStart, chunkSize, False,)))
+
     for chunkStart, chunkSize in chunkify(rv_file):
         jobs_rv.append(pool_rv.apply_async(process_fastq_chunk, (rv_file, chunkStart, chunkSize, True,)))
+
     fw_result = {"index": [], "seq": [], "comp": [], "qual": []}
     rv_result = {"index": [], "seq": [], "comp": [], "qual": []}
 
@@ -83,7 +78,7 @@ def initialize_dataframe(fw_file, rv_file):
 
 def extend_dataframe(fastq_df):
     """
-    extend the dataframe by calculating additional information
+    extend the dataframe by calculating aditional information
     :param fastq_df:
     :return: extended dataframe
     """
@@ -142,6 +137,7 @@ def extend_dataframe(fastq_df):
                               index=fastq_df.index.compute())
     fastq_df = fastq_df.merge(temp_rv_df)
     del rv_a, rv_t, rv_g, rv_c, temp_rv_df
+
     return fastq_df
 
 
@@ -180,9 +176,9 @@ def process_fastq_chunk(filename, chunk_start, chunk_size, is_rev: bool):
         return index_list, seq_list, q_score_list, complement_list
 
 
-def chunkify(filename, size=20256 * 20256):
+def chunkify(filename, size=1024 * 1024):
     """
-    Divide a file in multiple chunks of a certain size
+    devide a file in multiple chunks of a certain size
     :param filename: file to chunkify
     :param size: size of the chunks
     :return: iterator containing the chunkstart and size
@@ -213,7 +209,7 @@ def create_dask_dataframe(fw_data, rv_data):
     fw_df['fw_seq'] = fw_data['seq']
     fw_df['fw_seq_score'] = fw_data['qual']
     del fw_data
-    ddf = dd.from_pandas(fw_df, npartitions=mp.cpu_count())
+    ddf = dd.from_pandas(fw_df, npartitions=4)
     del fw_df
     rv_columns = ['rv_seq', 'rvc_seq', 'rv_seq_score', 'rv_seq_length']
     rv_df = pd.DataFrame(columns=rv_columns, index=rv_data['index'])
@@ -238,28 +234,3 @@ def create_dask_dataframe(fw_data, rv_data):
     ddf['rv_seq_len_flag'] = False
     ddf['identity_flag'] = False
     return ddf
-
-
-def handle_zip(fw_file, rv_file, uuid):
-    """
-    checks if forward and reverse files are zipfile, if so the files will be unzipped
-    and return the extracted filepaths. If the files are not zipped the original files will be returned
-    :param fw_file: File containing forward read data
-    :param rv_file: File containing reverse read data
-    :param uuid: Session ID
-    :return: Extracted file paths if input files are zipped or original files if input files are not zipped.
-    """
-    if fw_file.rsplit('.', 1)[1] in ['zip', 'gz']:
-        with zipfile.ZipFile(fw_file, 'r') as fw_zip:
-            fw_zip.extractall("data/"+uuid+"/fw_file/")
-            for root, dirs, files in os.walk("data/"+uuid+"/fw_file/"):
-                for file in files:
-                    fw_file = os.path.join(root, file)
-
-    if rv_file.rsplit('.', 1)[1] in ['zip', 'gz']:
-        with zipfile.ZipFile(rv_file, 'r') as fw_zip:
-            fw_zip.extractall("data/"+uuid+"/rv_file/")
-            for root, dirs, files in os.walk("data/"+uuid+"/rv_file/"):
-                for file in files:
-                    rv_file = os.path.join(root, file)
-    return fw_file, rv_file
