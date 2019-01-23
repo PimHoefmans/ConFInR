@@ -288,12 +288,12 @@ def export_tsv():
         maxG = request.args.get('maxG', 100, int)
         maxC = request.args.get('maxC', 100, int)
         paired_read_percentage = request.args.get('pairedRP', 0, int)
-        if not os.path.exists("data/"+session_id+"/csv"):
-            os.makedirs("data/"+session_id+"/csv")
+        if not os.path.exists("data/"+session_id+"/tsv"):
+            os.makedirs("data/"+session_id+"/tsv")
 
         fastq_df.drop(['paired_flag', 'fw_a_perc_flag', 'fw_t_perc_flag', 'fw_g_perc_flag', 'fw_c_perc_flag',
                        'rv_a_perc_flag', 'rv_t_perc_flag', 'rv_g_perc_flag', 'rv_c_perc_flag', 'fw_seq_len_flag',
-                       'rv_seq_len_flag', 'identity_flag'], axis=1).to_csv('data/' + session_id + "/csv/export-*.csv")
+                       'rv_seq_len_flag', 'identity_flag'], axis=1).to_csv('data/' + session_id + "/tsv/export-*.tsv", sep="\t")
 
         mem = io.BytesIO()
         zipf = zipfile.ZipFile(mem, 'w', zipfile.ZIP_DEFLATED)
@@ -310,7 +310,7 @@ def export_tsv():
             + str(maxC) + " | paired_read_percentages:" + str(paired_read_percentage)
             + "\nIn the column flagged, True means it's filtered out, False means it's a good sequence\n")
         # add the csv files to the zip
-        zip_files('data/'+session_id+'/csv/', zipf)
+        zip_files('data/'+session_id+'/tsv/', zipf)
         zipf.close()
         # Make sure that the file pointer is positioned at the start of data to send before calling send_file().
         mem.seek(0)

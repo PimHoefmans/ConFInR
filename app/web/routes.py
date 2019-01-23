@@ -10,7 +10,7 @@ from app.web.forms import FastQForm, DiamondInputForm, db_none_chosen
 from werkzeug.utils import secure_filename
 from app.core.utils.preprocess_utils import allowed_file
 from app.core.preprocessing.parser_mp import preprocess_fastq_files_mp
-from app.core.diamond.parsers import load_input, convert_to_fasta
+from app.core.diamond.parsers import load_input, merge_input, convert_to_fasta
 from app.core.diamond.runner import make_diamond_db
 
 
@@ -48,8 +48,8 @@ def index():
 @bp.route('/preprocessing', methods=['GET', 'POST'])
 def preprocessing():
     form = FastQForm()
-
     if form.validate_on_submit():
+        form.submit.render_kw = {'disabled': True}
         fw_file = secure_filename(form.forward_file.data.filename)
         rv_file = secure_filename(form.reverse_file.data.filename)
         if allowed_file(fw_file) and allowed_file(rv_file):
@@ -74,8 +74,7 @@ def preprocessing():
                         if os.path.exists('data/'+session_id):
                             rmtree('data/'+session_id)
                         session.clear()
-                        flash('An error occurred while parsing the input files, please make sure the '
-                              'files conform the fastq standard')
+                        flash('An error occurred while parsing the input files, please make sure the files conform the fastq standard')
                         return redirect(url_for('web.preprocessing'))
                 else:
                     flash("Files are already uploaded")
@@ -83,14 +82,12 @@ def preprocessing():
         else:
             flash('Unsupported file types')
             return redirect(url_for('web.preprocessing'))
-
     return render_template('preprocessing.html', form=form)
 
 
 @bp.route('/confinr', methods=['GET', 'POST'])
 def confinr():
     diamond_input_form = DiamondInputForm()
-    
     query_uploaded = False
     db_uploaded = False
     if diamond_input_form.validate_on_submit():
@@ -108,7 +105,7 @@ def confinr():
                 session_id = str(uuid.uuid1())
                 session['id'] = session_id
             finally:
-                for extension in ['.fasta', '.fastq', '.gz', '.tsv']:
+                for extension in ['.fasta', '.fastq', '.gz', '.tsv', '.zip']:
                     if extension in query_file:
                         query_storage_file = 'query'+extension
                         query_storage_folder = 'data/' + session_id + '/diamond/query'
@@ -119,12 +116,13 @@ def confinr():
                                 diamond_input_form.query_file.data.save(query_storage_file_path)
                                 if any(ext in query_storage_file for ext in ['.tsv']):
                                     convert_to_fasta(load_input(query_storage_file_path), session_id)
+                                elif any(ext in query_storage_file for ext in ['.zip']):
+                                    convert_to_fasta(merge_input(query_storage_file_path), session_id)
                                 query_uploaded = True
                             except Exception:
                                 if os.path.exists(query_storage_folder):
                                     rmtree(query_storage_folder)
-                                flash('An error occurred while parsing the query file. Please make sure the file'
-                                      'conforms to the required data formats.')
+                                flash('An error occurred while parsing the query file. Please make sure the file conforms to the required data formats.')
                                 return redirect(url_for('web.confinr'))
                         else:
                             flash("File is already uploaded")

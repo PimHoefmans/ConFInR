@@ -1,30 +1,31 @@
-function download_tsv(){
-    var minSL = $( "#min_seq_len" ).val();
-    var maxSL = $( "#max_seq_len" ).val();
-    var filterP = $( "#checkPaired").is(":checked");
-    var minA = $( "#min_A_value" ).val();
-    var minT = $( "#min_T_value" ).val();
-    var minG = $( "#min_G_value" ).val();
-    var minC = $( "#min_C_value" ).val();
-    var maxA = $( "#max_A_value" ).val();
-    var maxT = $( "#max_T_value" ).val();
-    var maxG = $( "#max_G_value" ).val();
-    var maxC = $( "#max_C_value" ).val();
-    var pairedRP = $( "#paired_read_percentage" ).val();
-    window.location.href = "http://127.0.0.1:5000/api/export_tsv?minSL="+minSL+"&maxSL="+maxSL+"&filterP="+filterP+"&minA="+minA+
-    "&minT="+minT+"&minG="+minG+"&minC="+minC+"&maxA="+maxA+"&maxT="+maxT+"&maxG="+maxG+"&maxC="+maxC+"&pairedRP="+pairedRP;
+function download_tsv() {
+    var minSL = $("#min_seq_len").val();
+    var maxSL = $("#max_seq_len").val();
+    var filterP = $("#checkPaired").is(":checked");
+    var minA = $("#min_A_value").val();
+    var minT = $("#min_T_value").val();
+    var minG = $("#min_G_value").val();
+    var minC = $("#min_C_value").val();
+    var maxA = $("#max_A_value").val();
+    var maxT = $("#max_T_value").val();
+    var maxG = $("#max_G_value").val();
+    var maxC = $("#max_C_value").val();
+    var pairedRP = $("#paired_read_percentage").val();
+    window.location.href = "http://127.0.0.1:5000/api/export_tsv?minSL=" + minSL + "&maxSL=" + maxSL + "&filterP=" + filterP + "&minA=" + minA +
+        "&minT=" + minT + "&minG=" + minG + "&minC=" + minC + "&maxA=" + maxA + "&maxT=" + maxT + "&maxG=" + maxG + "&maxC=" + maxC + "&pairedRP=" + pairedRP;
 
 }
 
-function checkInp(input_list) {
-    input_list.forEach(function (s) {
-        if (isNaN(x)) {
-            alert("Must input numbers");
-            return false;
-        }
-    })
-    return true;
-}
+// TODO: implement this method for the number input fields
+//function checkInp(input_list) {
+//    input_list.forEach(function (s) {
+//        if (isNaN(x)) {
+//            alert("Must input numbers");
+//            return false;
+//        }
+//    })
+//    return true;
+//}
 
 function clear_errors() {
     $(".image_error").html("");
@@ -32,18 +33,23 @@ function clear_errors() {
 }
 
 function disable_buttons() {
-    $(".action_button").attr("disabled", true);
+    $(function(){
+        $( ".action_button" ).prop("disabled", true);
+    });
 }
 
 function enable_buttons() {
-    $(".action_button").attr("disabled", false);
+    $(function(){
+        $( ".action_button" ).prop("disabled", false);
+    });
 }
 
 function make_seq_image() {
     clear_errors();
+    disable_buttons();
     var min_seq_len = $( "#min_seq_len" ).val();
     var max_seq_len = $( "#max_seq_len" ).val();
-  
+
     $.ajax({
         type: "POST",
         url: "http://127.0.0.1:5000/api/sequence",
@@ -68,6 +74,7 @@ function make_seq_image() {
 
 function make_paired_image() {
     clear_errors();
+    disable_buttons();
     var filter_paired = $( "#checkPaired").is(":checked");
   
     $.ajax({
@@ -94,6 +101,7 @@ function make_paired_image() {
 
 function make_nucleotide_image() {
     clear_errors();
+    disable_buttons();
     var min_A_value = $( "#min_A_value" ).val();
     var min_T_value = $( "#min_T_value" ).val();
     var min_G_value = $( "#min_G_value" ).val();
@@ -132,13 +140,12 @@ function make_nucleotide_image() {
             visualizeNucleotidePercentages(fw_json, "fwNucleotideImage", "Forward Clustered Nucleotide Percentage");
             visualizeNucleotidePercentages(rvc_json, "rvcNucleotideImage", "Reverse Clustered Nucleotide Percentage");
         }
-
     });
 }
 
 function calculate_identity(){
     clear_errors();
-
+    disable_buttons();
     $.ajax({
     type: "POST",
     url: "http://127.0.0.1:5000/api/calc_identity",
@@ -170,6 +177,7 @@ function calculate_identity(){
 
 function make_identity_image() {
     clear_errors();
+    disable_buttons();
     var pairedReadPercentage = $("#paired_read_percentage").val()
     $.ajax({
         type: "POST",
@@ -223,17 +231,21 @@ function run_diamond() {
         statusCode: {
             400: function () {
                 $("#diamond_error").html("No known records are loaded, please make sure you uploaded your files in this session");
+                $("#load_identity").hide();
             },
             404: function () {
                 $("#diamond_error").html("Not found, please report this error to the developers");
+                $("#load_identity").hide();
             },
             500: function () {
                 $("#diamond_error").html("Internal server error, please contact the developers");
+                $("#load_identity").hide();
             }
         },
         success: function (response) {
             // TODO: Handle repsonse
             console.log(response);
+
         }
     });
 }

@@ -40,4 +40,5 @@ function visualizeSequenceLength(data) {
             }]
     });
     sequenceChart.render()
+    enable_buttons();
 }
