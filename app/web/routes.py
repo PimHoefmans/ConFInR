@@ -6,11 +6,12 @@ import logging
 from shutil import rmtree
 from flask import render_template, redirect, url_for, session, request, flash
 from app.web import bp
-from app.web.forms import FastQForm, DiamondInputForm
+from app.web.forms import FastQForm, DiamondInputForm, db_none_chosen
 from werkzeug.utils import secure_filename
 from app.core.utils.preprocess_utils import allowed_file
 from app.core.preprocessing.parser_mp import preprocess_fastq_files_mp
-from app.core.diamond.parsers import load_input, convert_to_fasta
+from app.core.diamond.parsers import load_input, convert_to_fasta, merge_input
+from app.core.diamond.runner import make_diamond_db
 
 
 last_purge = None
@@ -94,12 +95,13 @@ def preprocessing():
 @bp.route('/confinr', methods=['GET', 'POST'])
 def confinr():
     db_input_form = DiamondInputForm()
-    query_upload_completed = False
-    db_upload_completed = False
+    query_uploaded = False
+    db_uploaded = False
 
     if db_input_form.validate_on_submit():
         query_file = secure_filename(db_input_form.query_file.data.filename)
         db_file = secure_filename(db_input_form.db_file.data.filename)
+        db_choice = db_input_form.db_choice.data
         if allowed_file(query_file) and allowed_file(db_file):
             try:
                 session_id = session['id']
@@ -107,7 +109,7 @@ def confinr():
                 session_id = str(uuid.uuid1())
                 session['id'] = session_id
             finally:
-                for extension in ['.tsv', '.txt', '.fasta', '.fastq', '.gz', '.dmnd']:
+                for extension in ['.tsv', '.txt', '.fasta', '.fastq', '.gz', '.dmnd', 'zip']:
                     if extension in query_file:
                         query_storage_file = 'query'+extension
                         query_storage_folder = 'data/' + session_id + '/diamond/query'
@@ -115,7 +117,7 @@ def confinr():
                         if not os.path.exists(query_storage_folder):
                             try:
                                 os.makedirs(query_storage_folder)
-                                diamond_input_form.query_file.data.save(query_storage_file_path)
+                                db_input_form.query_file.data.save(query_storage_file_path)
                                 if any(ext in query_storage_file for ext in ['.tsv']):
                                     convert_to_fasta(load_input(query_storage_file_path), session_id)
                                 elif any(ext in query_storage_file for ext in ['.zip']):
@@ -140,7 +142,7 @@ def confinr():
                                 if not os.path.exists(db_storage_folder):
                                     try:
                                         os.makedirs(db_storage_folder)
-                                        diamond_input_form.db_file.data.save(db_storage_file_path)
+                                        db_input_form.db_file.data.save(db_storage_file_path)
                                         if any(ext in db_storage_file_path for ext in ['.fasta', '.gz']):
                                             make_diamond_db(session_id)
                                         db_uploaded = True
@@ -159,52 +161,13 @@ def confinr():
                         return redirect(url_for('web.confinr'))
 
 
-                query_storage_folder = 'data/' + session_id + '/diamond/query'
-                query_storage_file_path = '/'.join([query_storage_folder, query_storage_file])
-                db_storage_folder = 'data/' + session_id + '/diamond/database'
-                db_storage_file_path = '/'.join([db_storage_folder, db_storage_file])
 
-                if not os.path.exists(query_storage_folder):
-                    try:
-                        os.makedirs(query_storage_folder)
-                        db_input_form.query_file.data.save(query_storage_file_path)
-                        if any(ext in query_storage_file for ext in ['.txt', '.tsv']):
-                            convert_to_fasta(load_input(query_storage_file_path), session_id)
-                        query_upload_completed = True
-                    except Exception:
-                        if os.path.exists(query_storage_folder):
-                            rmtree(query_storage_folder)
-                        flash('An error occurred while parsing the query file. Please make sure the file conforms'
-                              'to the required data formats.')
-                        return redirect(url_for('web.confinr'))
-                else:
-                    flash("File is already uploaded")
-                    return redirect(url_for('web.confinr'))
-
-                if not os.path.exists(db_storage_folder):
-                    try:
-                        os.makedirs(db_storage_folder)
-                        db_input_form.db_file.data.save(db_storage_file_path)
-                        if any(ext in db_storage_file_path for ext in ['.fasta', '.fastq', '.gz']):
-                            # TODO - Insert function to create DIAMOND database
-                            print('TODO - Insert function to create DIAMOND database')
-                        db_upload_completed = True
-                    except Exception:
-                        if os.path.exists(db_storage_folder):
-                            rmtree(db_storage_folder)
-                        flash('An error occurred while parsing the query file. Please make sure the file conforms'
-                              'to the required data formats.')
-                        return redirect(url_for('web.confinr'))
-                else:
-                    flash("File is already uploaded")
-                    return redirect(url_for('web.confinr'))
-
-                if query_upload_completed and db_upload_completed:
+                if query_uploaded and db_uploaded:
                     flash('Both files have successfully been uploaded and processed.')
-                if query_upload_completed and not db_upload_completed:
+                if query_uploaded and not db_uploaded:
                     flash('The query file has successfully been uploaded and processed.'
                           'An error occurred with the database file.')
-                if not query_upload_completed and db_upload_completed:
+                if not query_uploaded and db_uploaded:
                     flash('The database file has successfully been uploaded and processed.'
                           'An error occurred with the query file.')
                 return redirect(url_for('web.confinr'))
