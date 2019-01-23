@@ -106,6 +106,8 @@
                     <p id="session_success" class="session_success"></p>
                     <br>
                 {% endif %}
+                <img id="upload_load" src="{{ url_for('static', filename='images/loading2.gif') }}" style="display:inner;width:100px;height:auto;border:0;" >
+
                 <hr>
             </div>
 
@@ -163,6 +165,12 @@
                 <div id="identityImage"></div>
                 <hr>
             </div>
+<script type="text/javascript">
+$("#load_identity").hide();
+$("#calc_iden").click(function () {
+    $("#load_identity").show();
+});
+</script>
         </div>
     </div>
 
