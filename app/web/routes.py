@@ -54,8 +54,8 @@ def reset():
 @bp.route('/preprocessing', methods=['GET', 'POST'])
 def preprocessing():
     form = FastQForm()
-
     if form.validate_on_submit():
+        form.submit.render_kw = {'disabled': True}
         fw_file = secure_filename(form.forward_file.data.filename)
         rv_file = secure_filename(form.reverse_file.data.filename)
         if allowed_file(fw_file) and allowed_file(rv_file):
@@ -73,6 +73,7 @@ def preprocessing():
                         form.forward_file.data.save('data/' + session_id + '/' + renamed_fw_file)
                         form.reverse_file.data.save('data/' + session_id + '/' + renamed_rc_file)
                         preprocess_fastq_files_mp('data/' + session_id + '/' + renamed_fw_file, 'data/' + session_id + '/' + renamed_rc_file, session_id)
+                        flash("Files were successfully uploaded.")
                         return redirect(url_for('web.preprocessing'))
                     except Exception as e:
                         logging.exception(e)
@@ -87,7 +88,6 @@ def preprocessing():
         else:
             flash('Unsupported file types')
             return redirect(url_for('web.preprocessing'))
-
     return render_template('preprocessing.html', form=form)
 
 
@@ -110,8 +110,54 @@ def confinr():
                 for extension in ['.tsv', '.txt', '.fasta', '.fastq', '.gz', '.dmnd']:
                     if extension in query_file:
                         query_storage_file = 'query'+extension
-                    if extension in db_file:
-                        db_storage_file = 'db'+extension
+                        query_storage_folder = 'data/' + session_id + '/diamond/query'
+                        query_storage_file_path = '/'.join([query_storage_folder, query_storage_file])
+                        if not os.path.exists(query_storage_folder):
+                            try:
+                                os.makedirs(query_storage_folder)
+                                diamond_input_form.query_file.data.save(query_storage_file_path)
+                                if any(ext in query_storage_file for ext in ['.tsv']):
+                                    convert_to_fasta(load_input(query_storage_file_path), session_id)
+                                elif any(ext in query_storage_file for ext in ['.zip']):
+                                    convert_to_fasta(merge_input(query_storage_file_path), session_id)
+                                query_uploaded = True
+                            except Exception:
+                                if os.path.exists(query_storage_folder):
+                                    rmtree(query_storage_folder)
+                                flash('An error occurred while parsing the query file. Please make sure the file conforms to the required data formats.')
+                                return redirect(url_for('web.confinr'))
+                        else:
+                            flash("File is already uploaded")
+                            return redirect(url_for('web.confinr'))
+
+                if db_file is not None and allowed_file(db_file):
+                    if db_choice == db_none_chosen:
+                        for extension in ['.dmnd', '.fasta', '.gz']:
+                            if extension in db_file:
+                                db_storage_file = 'db'+extension
+                                db_storage_folder = 'data/' + session_id + '/diamond/database'
+                                db_storage_file_path = '/'.join([db_storage_folder, db_storage_file])
+                                if not os.path.exists(db_storage_folder):
+                                    try:
+                                        os.makedirs(db_storage_folder)
+                                        diamond_input_form.db_file.data.save(db_storage_file_path)
+                                        if any(ext in db_storage_file_path for ext in ['.fasta', '.gz']):
+                                            make_diamond_db(session_id)
+                                        db_uploaded = True
+                                        session['db_choice'] = db_none_chosen
+                                    except Exception:
+                                        if os.path.exists(db_storage_folder):
+                                            rmtree(db_storage_folder)
+                                        flash('An error occurred while parsing the query file. Please make sure the'
+                                              'file conforms to the required data formats.')
+                                        return redirect(url_for('web.confinr'))
+                                else:
+                                    flash("File is already uploaded")
+                                    return redirect(url_for('web.confinr'))
+                    else:
+                        flash('Both a database file and an existing database are selected, please select only one.')
+                        return redirect(url_for('web.confinr'))
+
 
                 query_storage_folder = 'data/' + session_id + '/diamond/query'
                 query_storage_file_path = '/'.join([query_storage_folder, query_storage_file])

@@ -19,18 +19,7 @@ function visualizeNucleotidePercentages(nucleotidePercentagesData, div, title="C
             toolTipContent: "Nucleotide: {label} <br/>Percentage: {bin}% <br/>N. sequences: {z}",
             dataPoints: nucleotidePercentagesData
         }]
-
-
-
-
-
-//        nucleotidePercentagesData
     });
     nucleotideChart.render();
-};
-
-
-
-//'type':'bubble','name':row, 'dataPoints':[],
-//        json_data.append({'type': 'bubble', 'name': row, 'dataPoints': [],
-//                           'toolTipContent': "<b>{name}</b><br/>Nucleotide: {label}<br/>Percentage: {y}<br/>aantal sequenties: {z}"
+    enable_buttons();
+}

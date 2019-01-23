@@ -136,6 +136,14 @@
 
             <div>
                 <h4>Identity reads</h4>
+
+                <p class="text-danger"><b>Warning: Calculating identity may take a while!
+                    Please press the button below to start this process.</b></p>
+                <button id="calc_iden" class="action_button" onclick="calculate_identity()">Calculate identity</button>
+                <img id="load_identity" src="{{ url_for('static', filename='images/loading2.gif') }}"
+                     style="display:inner;width:50px;height:auto;border:0;">
+                <p id="identity_succes" class="image_succes"></p>
+
                 <button class="action_button" onclick="make_identity_image()">Make identity reads image</button>
                 <p id="identity_error" class="image_error"></p>
                 <div id="identityImage"></div>

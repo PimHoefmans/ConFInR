@@ -1,4 +1,3 @@
-//window.onload = function () {
 function forwardReverseCompare(data){
     var dataPoints = [];
     CanvasJS.addColorSet("greenShades",             //creates a colorSet which colors the columns
@@ -41,15 +40,6 @@ function forwardReverseCompare(data){
             dataPoints: dataPoints
         }]
     });
-    /*
-    Function takes json array (example: [
-      {
-        "percentage": 90,
-        "amount": 100
-      }]
-      )
-      it loops through the array and takes the *percentage* for the x-axis and the *amount* for the y-axis
-    */
     function addData(data) {
         var g_data = data.data;
         var arrayLength = g_data.length
@@ -63,4 +53,5 @@ function forwardReverseCompare(data){
 
     }
     addData(data);
+    enable_buttons();
 }

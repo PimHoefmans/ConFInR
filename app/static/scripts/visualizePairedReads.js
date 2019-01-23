@@ -18,4 +18,5 @@ function visualizePairedReads(json_paired_data, div = 'pairsImage') {
 		}]
 	});
 	pairsChart.render()
-};
+	enable_buttons();
+}
