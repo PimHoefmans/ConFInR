@@ -1,9 +1,9 @@
 # ConFInR
 
 ## Desciption
-ConFInR tool for metagenomics function annotation. The web-application version is made for the people that want to use ConFInR in a more convenient way using a GUI. This version does require that the user can start-up a FLASK virtual environment. 
+The ConFInR tool is a Python tool used for functional annotation of nucleotide sequences from metagenomics experiments. It takes a given input of various files, such as fastq, tsv or fasta files, and, using a database of choice, executes it against DIAMOND, a high performance sequence aligner, to align proteins to them and in turn annotate the protein's functions to the nucleotide sequences in another web-tool.
 
-## This is the web-application version, please switch to the [command-line-release](https://github.com/kjradem/ConFInR/tree/cl-release) for the command-line version of this application
+#### This is the web-application version, please switch to the [command-line-release](https://github.com/kjradem/ConFInR/tree/cl-release) for the command-line version of this application
 
 ## Table Of Contents
 * [Description](https://github.com/kjradem/ConFInR/tree/cl-release/README.md#description)
